@@ -1,47 +1,111 @@
+/* Global Styles */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     display: flex;
+    background-color: #f9f9f9;
 }
 
+/* Sidebar */
 .sidebar {
     width: 200px;
     background-color: #f4f4f4;
     height: 100vh;
     padding: 20px 10px;
     box-sizing: border-box;
+    border-right: 1px solid #ddd;
 }
 
 .sidebar a {
     display: block;
-    padding: 10px;
+    padding: 12px 10px;
     color: #333;
     text-decoration: none;
     margin-bottom: 10px;
+    border-radius: 4px;
+    font-weight: bold;
 }
 
 .sidebar a:hover {
     background-color: #ddd;
 }
 
+/* Main Content */
 .main {
     flex-grow: 1;
     padding: 20px;
+    overflow-y: auto;
 }
 
+/* Header Bar */
+.header-bar {
+    background-color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.header-bar img {
+    width: 24px;
+    height: 24px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/* Search Form */
+form {
+    margin-bottom: 20px;
+}
+
+form input[type="text"],
+form input[name="q"] {
+    padding: 8px;
+    width: 250px;
+    max-width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    padding: 8px 12px;
+    margin-left: 5px;
+    background-color: #005eff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #0044cc;
+}
+
+/* Post Cards */
 .post-card {
     border: 1px solid #ccc;
     border-radius: 8px;
+    background-color: #fff;
     margin-bottom: 20px;
     padding: 15px;
     position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .post-card img {
-    max-width: 100%;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
     border-radius: 5px;
+    margin-top: 10px;
 }
 
+.post-card strong {
+    font-size: 16px;
+}
+
+/* Post Actions */
 .post-actions {
     position: absolute;
     top: 15px;
@@ -51,30 +115,25 @@ body {
 
 .post-actions button {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     background-color: transparent;
     border: none;
     cursor: pointer;
-    color: #d00;
+    color: #c00;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 0;
 }
 
+.post-actions button:hover {
+    text-decoration: underline;
+}
+
+/* Like & Comment Bar */
 .like-comment-bar {
     display: flex;
     justify-content: space-between;
     padding-top: 10px;
     font-size: 14px;
-}
-
-.header-bar {
-    background-color: #eee;
-    padding: 10px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.header-bar img {
-    width: 24px;
-    height: 24px;
-    margin-left: 10px;
-    cursor: pointer;
+    color: #555;
 }

@@ -1,24 +1,15 @@
 <?php
 include 'includes/db.php';
 
-// Handle search input
+// Handle search input (optional to leave this for now)
 $searchQuery = isset($_GET['q']) ? trim($_GET['q']) : '';
-
-// Fetch posts (replace with your actual posts table structure)
-$sql = "SELECT posts.*, users.full_name FROM posts JOIN users ON posts.user_id = users.id";
-if (!empty($searchQuery)) {
-    $searchQueryEscaped = $conn->real_escape_string($searchQuery);
-    $sql .= " WHERE users.full_name LIKE '%$searchQueryEscaped%' OR posts.caption LIKE '%$searchQueryEscaped%'";
-}
-
-$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="admin-dashboard.css">
+    <link rel="stylesheet" type="text/css" href="dashboard.css">
 </head>
 <body>
 
@@ -42,29 +33,27 @@ $result = $conn->query($sql);
 
     <hr>
 
-    <?php if ($result && $result->num_rows > 0): ?>
-        <?php while ($row = $result->fetch_assoc()): ?>
-            <div class="post-card">
-                <div><strong>@<?= htmlspecialchars($row['full_name']) ?></strong></div>
-                <div>
-                    <img src="<?= htmlspecialchars($row['image_url']) ?>" alt="Post image">
-                </div>
-                <p><?= htmlspecialchars($row['caption']) ?></p>
-
-                <div class="like-comment-bar">
-                    <span>👍 <?= $row['likes'] ?? 0 ?></span>
-                    <span>💬 <?= $row['comments_count'] ?? 0 ?> comments</span>
-                </div>
-
-                <div class="post-actions">
-                    <button onclick="alert('Delete post ID: <?= $row['id'] ?>')">🗑️ Delete post</button>
-                    <button onclick="alert('Warn user: <?= htmlspecialchars($row['full_name']) ?>')">⚠️ Warn user</button>
-                </div>
+    <!-- 🔹 MOCK POST CARDS: Replace these later with actual DB results -->
+    <?php for ($i = 1; $i <= 2; $i++): ?>
+        <div class="post-card">
+            <div><strong>@Student<?= $i ?></strong></div>
+            <div>
+                <img src="https://via.placeholder.com/600x300.png?text=Post+Image+<?= $i ?>" alt="Post image">
             </div>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <p>No posts found.</p>
-    <?php endif; ?>
+            <p>This is a sample caption for post <?= $i ?>. This is just for layout testing.</p>
+
+            <div class="like-comment-bar">
+                <span>👍 <?= rand(50, 200) ?></span>
+                <span>💬 <?= rand(1, 20) ?> comments</span>
+            </div>
+
+            <div class="post-actions">
+                <button onclick="alert('Delete post ID: <?= $i ?>')">🗑️ Delete post</button>
+                <button onclick="alert('Warn user: Student<?= $i ?>')">⚠️ Warn user</button>
+            </div>
+        </div>
+    <?php endfor; ?>
+
 </div>
 
 </body>
