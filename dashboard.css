@@ -1,0 +1,80 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #f4f4f4;
+    height: 100vh;
+    padding: 20px 10px;
+    box-sizing: border-box;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+
+.sidebar a:hover {
+    background-color: #ddd;
+}
+
+.main {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.post-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+    position: relative;
+}
+
+.post-card img {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+.post-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    text-align: right;
+}
+
+.post-actions button {
+    display: block;
+    margin-bottom: 5px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #d00;
+}
+
+.like-comment-bar {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    font-size: 14px;
+}
+
+.header-bar {
+    background-color: #eee;
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.header-bar img {
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    cursor: pointer;
+}
