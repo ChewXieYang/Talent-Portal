@@ -5,14 +5,17 @@ include 'includes/db.php';
 $searchQuery = isset($_GET['q']) ? trim($_GET['q']) : '';
 $selectedCategories = isset($_GET['categories']) ? $_GET['categories'] : [];
 
-// Fetch categories for filter list
-$categoryResult = $conn->query("SELECT * FROM categories");
+// Fetch categories for filter list - CORRECTED TABLE NAME
+$categoryResult = $conn->query("SELECT * FROM talent_categories ORDER BY category_name");
+if (!$categoryResult) {
+    die("Error fetching categories: " . $conn->error);
+}
 
-// Build SQL query with filters
-$sql = "SELECT DISTINCT u.*, GROUP_CONCAT(c.category_name SEPARATOR ', ') as categories
+// Build SQL query with filters - CORRECTED TABLE NAMES AND RELATIONSHIPS
+$sql = "SELECT DISTINCT u.*, GROUP_CONCAT(tc.category_name SEPARATOR ', ') as user_categories
         FROM users u 
-        LEFT JOIN user_categories uc ON u.user_id = uc.user_id
-        LEFT JOIN categories c ON uc.category_id = c.category_id";
+        LEFT JOIN user_talents ut ON u.id = ut.user_id
+        LEFT JOIN talent_categories tc ON ut.category_id = tc.id";
 
 $conditions = [];
 $params = [];
@@ -21,7 +24,7 @@ $types = "";
 // Add category filter if selected
 if (!empty($selectedCategories)) {
     $placeholders = str_repeat('?,', count($selectedCategories) - 1) . '?';
-    $conditions[] = "uc.category_id IN ($placeholders)";
+    $conditions[] = "ut.category_id IN ($placeholders)";
     foreach ($selectedCategories as $catId) {
         $params[] = intval($catId);
         $types .= "i";
@@ -42,14 +45,22 @@ if (!empty($conditions)) {
     $sql .= " WHERE " . implode(" AND ", $conditions);
 }
 
-$sql .= " GROUP BY u.user_id ORDER BY u.full_name ASC";
+$sql .= " GROUP BY u.id ORDER BY u.full_name ASC";
 
 // Prepare and execute the statement
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Error preparing statement: " . $conn->error . "<br>SQL: " . $sql);
+}
+
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
 }
-$stmt->execute();
+
+if (!$stmt->execute()) {
+    die("Error executing statement: " . $stmt->error);
+}
+
 $result = $stmt->get_result();
 ?>
 
@@ -127,16 +138,12 @@ $result = $stmt->get_result();
         }
         
         .filters {
-            display: none;
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 4px;
             background-color: #f8f9fa;
             margin-top: 15px;
-        }
-        
-        .filters.show {
-            display: block;
+            display: none;
         }
         
         .filter-items {
@@ -261,30 +268,13 @@ $result = $stmt->get_result();
         .clear-filters:hover {
             background: #c82333;
         }
-        
-        @media (max-width: 768px) {
-            .search-form {
-                flex-direction: column;
-            }
-            
-            .search-form input[type="text"] {
-                min-width: 100%;
-            }
-            
-            .talent-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .talent-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .talent-img {
-                align-self: center;
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
+
+        .debug-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -296,8 +286,17 @@ $result = $stmt->get_result();
         <p>Discover amazing talents from MMU students</p>
     </div>
 
+    <!-- Debug Section -->
+    <div class="debug-section">
+        <strong>Debug Info:</strong><br>
+        Categories found: <?= $categoryResult->num_rows ?><br>
+        Users found: <?= $result->num_rows ?><br>
+        Search query: "<?= htmlspecialchars($searchQuery) ?>"<br>
+        Selected categories: <?= empty($selectedCategories) ? 'None' : implode(', ', $selectedCategories) ?>
+    </div>
+
     <div class="search-section">
-        <form method="GET" class="search-form">
+        <form method="GET" class="search-form" id="mainForm">
             <input type="text" name="q" placeholder="Search talents by name or bio..." 
                    value="<?= htmlspecialchars($searchQuery) ?>">
             <button type="submit">Search</button>
@@ -306,7 +305,7 @@ $result = $stmt->get_result();
             </button>
             <?php if (!empty($searchQuery) || !empty($selectedCategories)): ?>
                 <a href="catalog.php" class="search-form button clear-filters" 
-                   style="display: inline-block; text-decoration: none; line-height: 1;">
+                   style="display: inline-block; text-decoration: none; line-height: 1; padding: 12px 20px;">
                     Clear All
                 </a>
             <?php endif; ?>
@@ -314,22 +313,25 @@ $result = $stmt->get_result();
         
         <div class="filters" id="filterBox">
             <h4>Filter by Category:</h4>
-            <div class="filter-items">
-                <?php 
-                // Reset the result pointer for categories
-                $categoryResult->data_seek(0);
-                while ($cat = $categoryResult->fetch_assoc()): 
-                ?>
-                    <label>
-                        <input type="checkbox" name="categories[]" 
-                               value="<?= $cat['category_id'] ?>"
-                               <?= in_array($cat['category_id'], $selectedCategories) ? 'checked' : '' ?>
-                               onchange="this.form.submit()">
-                        <?= htmlspecialchars($cat['category_name']) ?>
-                    </label>
-                <?php endwhile; ?>
-            </div>
-            <button type="submit" form="searchForm">Apply Filters</button>
+            <form method="GET" id="filterForm">
+                <input type="hidden" name="q" value="<?= htmlspecialchars($searchQuery) ?>">
+                
+                <div class="filter-items">
+                    <?php 
+                    $categoryResult->data_seek(0);
+                    while ($cat = $categoryResult->fetch_assoc()): 
+                    ?>
+                        <label>
+                            <input type="checkbox" name="categories[]" 
+                                   value="<?= $cat['id'] ?>"
+                                   <?= in_array($cat['id'], $selectedCategories) ? 'checked' : '' ?>
+                                   onchange="document.getElementById('filterForm').submit()">
+                            <?= htmlspecialchars($cat['category_name']) ?>
+                        </label>
+                    <?php endwhile; ?>
+                </div>
+                <button type="submit">Apply Filters</button>
+            </form>
         </div>
     </div>
 
@@ -349,25 +351,28 @@ $result = $stmt->get_result();
     <?php if ($result->num_rows > 0): ?>
         <div class="talent-grid">
             <?php while ($row = $result->fetch_assoc()): ?>
-                <a href="view_profile.php?id=<?= $row['user_id'] ?>" style="text-decoration: none; color: inherit;">
+                <a href="view_profile.php?id=<?= $row['id'] ?>" style="text-decoration: none; color: inherit;">
                     <div class="talent-card">
                         <div class="talent-content">
-                            <img src="<?= htmlspecialchars($row['profile_picture_url'] ?: 'uploads/avatars/default-avatar.jpg') ?>" 
+                            <img src="<?= htmlspecialchars($row['profile_picture_url'] ?: 'https://via.placeholder.com/80x80?text=No+Image') ?>" 
                                  class="talent-img" 
-                                 alt="Profile of <?= htmlspecialchars($row['full_name']) ?>"
-                                 onerror="this.src='uploads/avatars/default-avatar.jpg'">
+                                 alt="Profile of <?= htmlspecialchars($row['full_name']) ?>">
                             
                             <div class="talent-info">
                                 <h3><?= htmlspecialchars($row['full_name']) ?></h3>
                                 
-                                <?php if (!empty($row['categories'])): ?>
+                                <?php if (!empty($row['user_categories'])): ?>
                                     <div class="talent-categories">
                                         <?php 
-                                        $categories = explode(', ', $row['categories']);
+                                        $categories = explode(', ', $row['user_categories']);
                                         foreach ($categories as $category): 
+                                            if (trim($category)): 
                                         ?>
-                                            <span class="category-tag"><?= htmlspecialchars($category) ?></span>
-                                        <?php endforeach; ?>
+                                            <span class="category-tag"><?= htmlspecialchars(trim($category)) ?></span>
+                                        <?php 
+                                            endif;
+                                        endforeach; 
+                                        ?>
                                     </div>
                                 <?php endif; ?>
                                 
@@ -406,20 +411,12 @@ $result = $stmt->get_result();
     <script>
         function toggleFilters() {
             const filterBox = document.getElementById('filterBox');
-            filterBox.classList.toggle('show');
+            if (filterBox.style.display === 'none' || filterBox.style.display === '') {
+                filterBox.style.display = 'block';
+            } else {
+                filterBox.style.display = 'none';
+            }
         }
-
-        // Auto-submit form when category checkboxes change
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('input[name="categories[]"]');
-            const form = document.querySelector('form');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    form.submit();
-                });
-            });
-        });
     </script>
 </body>
 </html>
