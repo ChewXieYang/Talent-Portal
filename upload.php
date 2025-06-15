@@ -225,211 +225,14 @@ function createThumbnail($source_path, $thumb_path, $max_width = 300, $max_heigh
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/upload.css">
     <title>Upload Portfolio - MMU Talent Showcase</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f5f5f5;
-            padding: 20px;
-        }
-        
-        .upload-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .page-header h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .page-header p {
-            color: #666;
-            font-size: 16px;
-        }
-        
-        .message {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        .required {
-            color: #dc3545;
-        }
-        
-        .form-group input[type="text"],
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #005eff;
-        }
-        
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .file-upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 40px;
-            text-align: center;
-            transition: border-color 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .file-upload-area:hover {
-            border-color: #005eff;
-        }
-        
-        .file-upload-area.dragover {
-            border-color: #005eff;
-            background-color: #f0f8ff;
-        }
-        
-        .file-upload-area input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            color: #999;
-            margin-bottom: 15px;
-        }
-        
-        .upload-text {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        
-        .file-info {
-            font-size: 14px;
-            color: #999;
-        }
-        
-        .file-preview {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-        
-        .btn-primary {
-            background: #005eff;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #0044cc;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .help-text {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .no-talents {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 4px;
-            color: #856404;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
+<div class="wrapper">
+    <?php include 'includes/sidebar.php'; ?>
+
+    <div class="main-content">
     <?php include 'includes/header.php'; ?>
     
     <div class="upload-container">
@@ -513,7 +316,7 @@ function createThumbnail($source_path, $thumb_path, $max_width = 300, $max_heigh
     </div>
     
     <?php include 'includes/footer.php'; ?>
-    
+    </div>
     <script>
         // File upload handling
         const fileInput = document.getElementById('file');
@@ -605,5 +408,6 @@ function createThumbnail($source_path, $thumb_path, $max_width = 300, $max_heigh
             }
         });
     </script>
+</div>
 </body>
 </html>
