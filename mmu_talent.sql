@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 15, 2025 at 01:06 PM
+-- Generation Time: Jun 15, 2025 at 09:22 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -57,7 +57,13 @@ INSERT INTO `activity_log` (`id`, `user_id`, `action_type`, `action_description`
 (14, 7, 'portfolio_delete', 'Deleted portfolio item', NULL, '2025-06-15 10:05:41'),
 (15, 7, 'profile_picture_update', 'Updated profile picture', '::1', '2025-06-15 10:06:15'),
 (16, 7, 'portfolio_upload', 'Uploaded portfolio item: How to build Cartethyia', NULL, '2025-06-15 10:10:05'),
-(17, 7, 'portfolio_upload', 'Uploaded portfolio item: A Study on Furina', NULL, '2025-06-15 10:12:08');
+(17, 7, 'portfolio_upload', 'Uploaded portfolio item: A Study on Furina', NULL, '2025-06-15 10:12:08'),
+(18, 8, 'login', 'User logged in', '::1', '2025-06-15 17:20:31'),
+(19, 8, 'profile_picture_update', 'Updated profile picture', '::1', '2025-06-15 17:45:00'),
+(20, 8, 'talent_add', 'Added new talent: Photograph', NULL, '2025-06-15 18:54:22'),
+(21, 8, 'talent_uploads', 'Uploaded talent item: Sparkle Fumo', NULL, '2025-06-15 19:02:09'),
+(22, 8, 'talent_uploads', 'Uploaded talent item: fumo', NULL, '2025-06-15 19:19:07'),
+(23, 8, 'talent_uploads', 'Uploaded talent item: fumo', NULL, '2025-06-15 19:22:14');
 
 -- --------------------------------------------------------
 
@@ -203,6 +209,36 @@ INSERT INTO `talent_categories` (`id`, `category_name`, `description`, `created_
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `talent_uploads`
+--
+
+CREATE TABLE `talent_uploads` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `talent_id` int(11) DEFAULT NULL,
+  `title` varchar(200) NOT NULL,
+  `description` text DEFAULT NULL,
+  `file_url` varchar(255) NOT NULL,
+  `thumbnail_url` varchar(255) DEFAULT NULL,
+  `file_type` enum('image','video','audio','document','code','other') NOT NULL,
+  `file_size` int(11) DEFAULT NULL,
+  `views` int(11) DEFAULT 0,
+  `is_featured` tinyint(1) DEFAULT 0,
+  `upload_date` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `talent_uploads`
+--
+
+INSERT INTO `talent_uploads` (`id`, `user_id`, `talent_id`, `title`, `description`, `file_url`, `thumbnail_url`, `file_type`, `file_size`, `views`, `is_featured`, `upload_date`, `updated_at`) VALUES
+(1, 8, 10, 'fumo', 'sparkle fumo', 'uploads/talentupload/684f1cabd980f_1750015147.png', NULL, 'image', 1076579, 0, NULL, '2025-06-15 19:19:07', '2025-06-15 19:19:07'),
+(2, 8, 10, 'fumo', 'sparkle fumo', 'uploads/talentupload/684f1d66de226_1750015334.png', NULL, 'image', 1076579, 0, NULL, '2025-06-15 19:22:14', '2025-06-15 19:22:14');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -235,7 +271,8 @@ INSERT INTO `users` (`id`, `username`, `password`, `email`, `full_name`, `studen
 (4, 'alice_tan', 'password', 'alice@student.mmu.edu.my', 'Alice Tan', '1191234569', 'TC1L', '0168899221', 'alice@student.mmu.edu.my', 'Final year student exploring portrait photography.', 'https://blue-utils.me/img/common/profile/Skill_Portrait_CH0225.png', 'student', 'active', '2025-06-11 14:43:23', NULL),
 (5, 'daniel_chong', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'daniel@student.mmu.edu.my', 'Daniel Chong', '1191234570', 'TC2L', '0116677889', 'daniel@student.mmu.edu.my', 'Fresh graduate in music production and sound design.', 'uploads/daniel.jpg', 'student', 'active', '2025-06-11 14:43:23', NULL),
 (6, 'SonjaKrasny', '$2y$10$0WB5.CxcjuWnWDyx6SiDbuKRERoFyn/4N4Jyyqr8fydaSj23EQsXu', 'chewxieyang@student.mmu.edu.my', 'Chew Xie Yang', '1221304859', 'TC1L', '012-7116513', 'chewxieyang@student.mmu.edu.my', 'Just another prospective writer', 'uploads/avatars/68499b5dbe1b9_1749654365.jpeg', 'student', 'active', '2025-06-11 14:44:00', '2025-06-11 14:45:07'),
-(7, 'wmatif', '$2y$10$N5EfK0gTKR4vFZIutdCIheGyKqJt5dIMheITZCt9VrXC2hNWTbV46', 'wmatif@student.mmu.edu.my', 'Wan Muhammad Atif', '1211103154', 'TC1L', '011-10255127', 'wmatif@student.mmu.edu.my', NULL, 'uploads/avatars/684e9b1781205_1749981975.png', 'student', 'active', '2025-06-15 09:41:33', '2025-06-15 09:49:44');
+(7, 'wmatif', '$2y$10$N5EfK0gTKR4vFZIutdCIheGyKqJt5dIMheITZCt9VrXC2hNWTbV46', 'wmatif@student.mmu.edu.my', 'Wan Muhammad Atif', '1211103154', 'TC1L', '011-10255127', 'wmatif@student.mmu.edu.my', NULL, 'uploads/avatars/684e9b1781205_1749981975.png', 'student', 'active', '2025-06-15 09:41:33', '2025-06-15 09:49:44'),
+(8, 'melvin', '$2y$10$PqEUDdhBSxiad7eHD8N2nutN.1tvOg0OlI9Hh7PAmuvC14eyJJrOK', '1211108115@student.mmu.edu.my', 'Melvin Hee', '1211108115', 'TC1L', '012-2767950', '1211108115@student.mmu.edu.my', NULL, 'uploads/avatars/684f069c00449_1750009500.jpg', 'student', 'active', '2025-06-15 17:20:22', '2025-06-15 17:20:31');
 
 -- --------------------------------------------------------
 
@@ -269,7 +306,8 @@ INSERT INTO `user_talents` (`id`, `user_id`, `category_id`, `talent_title`, `tal
 (6, 5, 1, 'Music Production', 'Electronic music composition and sound design', 'expert', 6, 0, '2025-06-11 14:43:23', '2025-06-11 14:43:23'),
 (7, 6, 8, 'Fiction Writer', 'Writer of a sci-fi series, \"Triumvirate Space\"', 'intermediate', 5, 0, '2025-06-11 15:03:44', '2025-06-11 15:03:44'),
 (8, 7, 3, 'Game Development', 'Experienced Unity and Unreal Engine Developer specialising in Game Design and Systems Development', 'intermediate', 2, 1, '2025-06-15 09:52:56', '2025-06-15 09:52:56'),
-(9, 7, 1, 'Professional Listener', 'Experienced with listening to music since 5 years old.', 'expert', 22, 0, '2025-06-15 09:53:42', '2025-06-15 09:53:42');
+(9, 7, 1, 'Professional Listener', 'Experienced with listening to music since 5 years old.', 'expert', 22, 0, '2025-06-15 09:53:42', '2025-06-15 09:53:42'),
+(10, 8, 4, 'Photograph', 'Taking photo', 'intermediate', 2, 1, '2025-06-15 18:54:22', '2025-06-15 18:54:22');
 
 --
 -- Indexes for dumped tables
@@ -325,6 +363,12 @@ ALTER TABLE `talent_categories`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `talent_uploads`
+--
+ALTER TABLE `talent_uploads`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -349,7 +393,7 @@ ALTER TABLE `user_talents`
 -- AUTO_INCREMENT for table `activity_log`
 --
 ALTER TABLE `activity_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `announcements`
@@ -388,16 +432,22 @@ ALTER TABLE `talent_categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
+-- AUTO_INCREMENT for table `talent_uploads`
+--
+ALTER TABLE `talent_uploads`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `user_talents`
 --
 ALTER TABLE `user_talents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
