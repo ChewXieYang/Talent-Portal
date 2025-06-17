@@ -1,24 +1,24 @@
 <?php
+session_start();
 include 'includes/db.php';
 
-// Log the logout activity if user is logged in
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
-    $_SESSION['user_type'] = $user['user_type'];
-    $_SESSION['full_name'] = $user['full_name'];
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
-    
+
+    // Log the logout action
     $stmt = $conn->prepare("INSERT INTO activity_log (user_id, action_type, action_description, ip_address) VALUES (?, ?, ?, ?)");
     $action_type = 'logout';
     $action_desc = 'User logged out';
     $stmt->bind_param("isss", $user_id, $action_type, $action_desc, $ip_address);
     $stmt->execute();
+    $stmt->close();
 }
 
-// Destroy the session
+// Clear session
+session_unset();
 session_destroy();
 
-// Redirect to login page
+// Redirect to login
 header('Location: login.php?message=logged_out');
 exit;
-?>
