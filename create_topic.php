@@ -11,15 +11,6 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $messageType = '';
 
-// Get pre-selected category if coming from forum_category.php
-$preselected_category = isset($_GET['category']) ? intval($_GET['category']) : 0;
-
-// Get user info
-$user_stmt = $conn->prepare("SELECT full_name, username FROM users WHERE id = ?");
-$user_stmt->bind_param("i", $user_id);
-$user_stmt->execute();
-$user = $user_stmt->get_result()->fetch_assoc();
-
 // Get all active forum categories
 $categories_stmt = $conn->prepare("SELECT id, category_name FROM forum_categories WHERE is_active = 1 ORDER BY category_name");
 $categories_stmt->execute();
@@ -59,6 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->execute()) {
                 $topic_id = $conn->insert_id;
                 
+                // Log activity
+                $activity_stmt = $conn->prepare("INSERT INTO activity_log (user_id, action_type, action_description, ip_address) VALUES (?, ?, ?, ?)");
+                $action_type = 'forum_topic_create';
+                $action_desc = 'Created new topic: ' . $title;
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+                $activity_stmt->bind_param("isss", $user_id, $action_type, $action_desc, $ip_address);
+                $activity_stmt->execute();
+                
                 // Redirect to the new topic
                 header('Location: forum_topic.php?id=' . $topic_id);
                 exit;
@@ -69,6 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+// Get user details for display
+$user_stmt = $conn->prepare("SELECT full_name, username FROM users WHERE id = ?");
+$user_stmt->bind_param("i", $user_id);
+$user_stmt->execute();
+$user_result = $user_stmt->get_result();
+$user = $user_result->fetch_assoc();
 ?>
 
 <!DOCTYPE html>
@@ -76,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Topic - MMU Talent Showcase Forum</title>
+    <title>Create New Topic - MMU Talent Showcase</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -86,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -101,44 +107,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .header h1 {
+            margin: 0 0 10px 0;
             color: #333;
-            margin-bottom: 10px;
+        }
+        
+        .header p {
+            margin: 0;
+            color: #666;
         }
         
         .form-container {
             background: white;
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 30px;
         }
         
-        .user-info {
-            background: #f8f9fa;
+        .message {
             padding: 15px;
             border-radius: 5px;
-            margin-bottom: 25px;
-            border-left: 4px solid #005eff;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
         
-        .guidelines {
-            background: #e7f3ff;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 25px;
-            border-left: 4px solid #005eff;
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
         
-        .guidelines h4 {
-            margin-top: 0;
-            color: #005eff;
-        }
-        
-        .guidelines ul {
-            margin-bottom: 0;
-        }
-        
-        .guidelines li {
-            margin-bottom: 5px;
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .form-group {
@@ -147,42 +148,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             font-weight: bold;
             color: #333;
         }
         
-        .form-group input,
         .form-group select,
+        .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
-            font-family: inherit;
             box-sizing: border-box;
         }
         
         .form-group textarea {
-            min-height: 200px;
+            min-height: 150px;
             resize: vertical;
         }
         
-        .char-count {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #005eff;
+            box-shadow: 0 0 5px rgba(0, 94, 255, 0.3);
         }
         
         .btn {
             background: #005eff;
             color: white;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
@@ -190,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .btn:hover {
-            background: #0046cc;
+            background: #0051cc;
         }
         
         .btn-secondary {
@@ -202,72 +203,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #545b62;
         }
         
-        .message {
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #005eff;
+        }
+        
+        .char-count {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .guidelines {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
         
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .guidelines h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
         }
         
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .guidelines ul {
+            margin: 0;
+            padding-left: 20px;
         }
         
-        .breadcrumb {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .guidelines li {
+            margin-bottom: 5px;
+            color: #856404;
         }
         
-        .breadcrumb a {
-            color: #005eff;
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-    </style>
-    <script>
-        function updateCharCount(inputId, countId, maxLength) {
-            const input = document.getElementById(inputId);
-            const counter = document.getElementById(countId);
-            counter.textContent = input.value.length + '/' + maxLength + ' characters';
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
             
-            if (input.value.length > maxLength * 0.9) {
-                counter.style.color = '#dc3545';
-            } else {
-                counter.style.color = '#666';
+            .form-container {
+                padding: 20px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .btn-secondary {
+                margin-left: 0;
             }
         }
-        
-        // Update character counts on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCharCount('title', 'title-count', 200);
-            updateCharCount('content', 'content-count', 5000);
-        });
-    </script>
+    </style>
 </head>
 <body>
     <?php include 'includes/header.php'; ?>
     
     <div class="container">
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <a href="index.php">Home</a> › 
-            <a href="forum.php">Forum</a> › 
-            Create New Topic
-        </div>
-        
         <div class="header">
             <h1>Create New Topic</h1>
             <p>Start a new discussion in the community forum</p>
@@ -300,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="">Select a category...</option>
                         <?php while ($category = $categories->fetch_assoc()): ?>
                             <option value="<?= $category['id'] ?>" 
-                                    <?= ($preselected_category == $category['id'] || (isset($_POST['category_id']) && $_POST['category_id'] == $category['id'])) ? 'selected' : '' ?>>
+                                    <?= (isset($_POST['category_id']) && $_POST['category_id'] == $category['id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($category['category_name']) ?>
                             </option>
                         <?php endwhile; ?>
@@ -325,13 +322,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <textarea id="content" 
                               name="content" 
                               required 
-                              maxlength="5000"
-                              placeholder="Write your topic content here. Be detailed and clear to encourage good discussions..."
+                              placeholder="Write your topic content here. Be detailed and specific to encourage good discussions..."
                               oninput="updateCharCount('content', 'content-count', 5000)"><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
                     <div id="content-count" class="char-count">0/5000 characters</div>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="text-align: center; margin-top: 30px;">
                     <button type="submit" class="btn">Create Topic</button>
                     <a href="forum.php" class="btn btn-secondary">Cancel</a>
                 </div>
@@ -340,5 +336,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     
     <?php include 'includes/footer.php'; ?>
+    
+    <script>
+        function updateCharCount(inputId, countId, maxLength) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(countId);
+            const currentLength = input.value.length;
+            
+            counter.textContent = currentLength + '/' + maxLength + ' characters';
+            
+            if (currentLength > maxLength * 0.9) {
+                counter.style.color = '#dc3545';
+            } else if (currentLength > maxLength * 0.8) {
+                counter.style.color = '#ffc107';
+            } else {
+                counter.style.color = '#666';
+            }
+        }
+        
+        // Initialize character counts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCharCount('title', 'title-count', 200);
+            updateCharCount('content', 'content-count', 5000);
+        });
+        
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const category = document.getElementById('category_id').value;
+            
+            if (!category) {
+                alert('Please select a category.');
+                e.preventDefault();
+                return;
+            }
+            
+            if (title.length < 5) {
+                alert('Topic title must be at least 5 characters long.');
+                e.preventDefault();
+                return;
+            }
+            
+            if (content.length < 10) {
+                alert('Topic content must be at least 10 characters long.');
+                e.preventDefault();
+                return;
+            }
+        });
+    </script>
 </body>
 </html>

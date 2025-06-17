@@ -40,9 +40,11 @@ $stats_stmt = $conn->query("
     SELECT 
         (SELECT COUNT(*) FROM forum_topics) as total_topics,
         (SELECT COUNT(*) FROM forum_replies) as total_replies,
-        (SELECT COUNT(DISTINCT user_id) FROM forum_topics 
-         UNION 
-         SELECT COUNT(DISTINCT user_id) FROM forum_replies) as active_users
+        (SELECT COUNT(DISTINCT user_id) FROM (
+            SELECT user_id FROM forum_topics 
+            UNION 
+            SELECT user_id FROM forum_replies
+        ) AS combined_users) as active_users
 ");
 $stats = $stats_stmt->fetch_assoc();
 ?>
