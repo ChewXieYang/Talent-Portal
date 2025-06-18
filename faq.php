@@ -4,117 +4,141 @@
     <meta charset="UTF-8">
     <title>FAQ - MMU Talent Showcase</title>
     <link rel="stylesheet" href="css/faq.css">
+    <link rel="stylesheet" href="css/sidebar.css">
     <script src="js/main.js"></script>
 
+    <style>
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: 250px;
+            background-color: #f5f5f5;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
-    <?php if (isset($_GET['success'])): ?>
-        <div class="success-message">Your question has been submitted successfully!</div>
-    <?php elseif (isset($_GET['error'])): ?>
-        <div class="error-message">There was a problem with your submission. Please check your inputs.</div>
-    <?php endif; ?>
+    <div class="wrapper">
+        <?php include 'includes/sidebar.php'; ?>
 
-    <header>
-        <h1>Frequently Asked Questions (FAQ)</h1>
-    </header>
+        <div class="main-content">
+            <?php if (isset($_GET['success'])): ?>
+                <div class="success-message">Your question has been submitted successfully!</div>
+            <?php elseif (isset($_GET['error'])): ?>
+                <div class="error-message">There was a problem with your submission. Please check your inputs.</div>
+            <?php endif; ?>
 
-    <section class="faq-section">
-        <table class="faq-table">
-            <thead>
-                <tr>
-                    <th>Question</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- FAQ Item 1 -->
-                <tr class="faq-item">
-                    <td class="faq-question">How do I submit my talent?</td>
-                </tr>
-                <tr class="faq-answer-row">
-                    <td class="faq-answer">You can submit your talent through the 'Submit Talent' form after logging into your account.</td>
-                </tr>
+            <header>
+                <h1>Frequently Asked Questions (FAQ)</h1>
+            </header>
 
-                <!-- FAQ Item 2 -->
-                <tr class="faq-item">
-                    <td class="faq-question">Can I edit my portfolio after submission?</td>
-                </tr>
-                <tr class="faq-answer-row">
-                    <td class="faq-answer">Yes, go to your dashboard and select 'Edit' next to your talent submission.</td>
-                </tr>
+            <section class="faq-section">
+                <table class="faq-table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="faq-item">
+                            <td class="faq-question">How do I submit my talent?</td>
+                        </tr>
+                        <tr class="faq-answer-row">
+                            <td class="faq-answer">You can submit your talent through the 'Submit Talent' form after logging into your account.</td>
+                        </tr>
+                        <tr class="faq-item">
+                            <td class="faq-question">Can I edit my portfolio after submission?</td>
+                        </tr>
+                        <tr class="faq-answer-row">
+                            <td class="faq-answer">Yes, go to your dashboard and select 'Edit' next to your talent submission.</td>
+                        </tr>
+                        <tr class="faq-item">
+                            <td class="faq-question">Who can view my submission?</td>
+                        </tr>
+                        <tr class="faq-answer-row">
+                            <td class="faq-answer">All registered users and admins can view published submissions on the platform.</td>
+                        </tr>
+                        <tr class="faq-item">
+                            <td class="faq-question">What file formats are supported?</td>
+                        </tr>
+                        <tr class="faq-answer-row">
+                            <td class="faq-answer">We support common formats like JPG, PNG, MP4, PDF, and DOCX.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-                <!-- FAQ Item 3 -->
-                <tr class="faq-item">
-                    <td class="faq-question">Who can view my submission?</td>
-                </tr>
-                <tr class="faq-answer-row">
-                    <td class="faq-answer">All registered users and admins can view published submissions on the platform.</td>
-                </tr>
+            <section class="question-form-section">
+                <h2>Have More Questions?</h2>
+                <p>Send us your inquiry below:</p>
+                <form action="submit_question.php" method="post">
+                    <label for="email">Your Email:</label>
+                    <input type="email" name="email" id="email" required>
 
-                <!-- FAQ Item 4 -->
-                <tr class="faq-item">
-                    <td class="faq-question">What file formats are supported?</td>
-                </tr>
-                <tr class="faq-answer-row">
-                    <td class="faq-answer">We support common formats like JPG, PNG, MP4, PDF, and DOCX.</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+                    <label for="subject">Your Question:</label>
+                    <input type="text" name="subject" id="subject" required>
 
-    <section class="question-form-section">
-        <h2>Have More Questions?</h2>
-        <p>Send us your inquiry below:</p>
-        <form action="submit_question.php" method="post">
-            <label for="email">Your Email:</label>
-            <input type="email" name="email" id="email" required>
+                    <label for="message">Additional Message:</label>
+                    <textarea name="body" id="message" rows="5" required></textarea>
 
-            <label for="subject">Your Question:</label>
-            <input type="text" name="subject" id="subject" required>
+                    <button type="submit">Send Question</button>
+                </form>
+            </section>
 
-            <label for="message">Additional Message:</label>
-            <textarea name="body" id="message" rows="5" required></textarea>
-
-            <button type="submit">Send Question</button>
-        </form>
-    </section>
+            <?php include 'includes/footer.php'; ?>
+        </div>
+    </div>
 
     <script>
-    // FAQ dropdown toggle
-    const questions = document.querySelectorAll('.faq-question');
-    questions.forEach((question) => {
-        question.addEventListener('click', () => {
-            const answerRow = question.parentElement.nextElementSibling;
-            answerRow.classList.toggle('open');
+        const questions = document.querySelectorAll('.faq-question');
+        questions.forEach((question) => {
+            question.addEventListener('click', () => {
+                const answerRow = question.parentElement.nextElementSibling;
+                answerRow.classList.toggle('open');
+            });
         });
-    });
 
-    // Form validation using isValidEmail from main.js
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function (e) {
-        const email = document.getElementById("email").value.trim();
-        const subject = document.getElementById("subject").value.trim();
-        const message = document.getElementById("message").value.trim();
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function (e) {
+            const email = document.getElementById("email").value.trim();
+            const subject = document.getElementById("subject").value.trim();
+            const message = document.getElementById("message").value.trim();
 
-        let errors = [];
+            let errors = [];
 
-        if (!isValidEmail(email)) {
-            errors.push("Please enter a valid email address.");
-        }
+            if (!isValidEmail(email)) {
+                errors.push("Please enter a valid email address.");
+            }
 
-        if (subject.length < 5) {
-            errors.push("Your question must be at least 5 characters long.");
-        }
+            if (subject.length < 5) {
+                errors.push("Your question must be at least 5 characters long.");
+            }
 
-        if (message.length < 10) {
-            errors.push("Your additional message must be at least 10 characters long.");
-        }
+            if (message.length < 10) {
+                errors.push("Your additional message must be at least 10 characters long.");
+            }
 
-        if (errors.length > 0) {
-            e.preventDefault();
-            alert(errors.join("\n"));
-        }
-    });
+            if (errors.length > 0) {
+                e.preventDefault();
+                alert(errors.join("\\n"));
+            }
+        });
     </script>
-
 </body>
 </html>
