@@ -20,5 +20,5 @@ session_unset();
 session_destroy();
 
 // Redirect to login
-header('Location: login.php?message=logged_out');
+header('Location: student_dashboard.php?message=logged_out');
 exit;

@@ -1,0 +1,23 @@
+/* Sidebar */
+.sidebar {
+    width: 200px;
+    background-color: #f4f4f4;
+    height: 100vh;
+    padding: 20px 10px;
+    box-sizing: border-box;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px 10px;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.sidebar a:hover {
+    background-color: #ddd;
+}
