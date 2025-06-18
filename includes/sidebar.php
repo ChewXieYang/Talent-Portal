@@ -2,7 +2,7 @@
 <footer>
     <div class="sidebar">
         <?php if (isset($_SESSION['user_id'])): ?>
-            <div class="user-section">
+            <div class="user-section" id="user-section">
                 <div class="user-info">
                     Welcome, <strong><?= isset($_SESSION['full_name']) ? htmlspecialchars($_SESSION['full_name']) : 'User' ?></strong>
                 </div>

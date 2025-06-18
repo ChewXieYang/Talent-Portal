@@ -21,3 +21,7 @@
 .sidebar a:hover {
     background-color: #ddd;
 }
+
+.sidebar .user-section {
+    color: #000;
+}
