@@ -3,7 +3,7 @@ include 'includes/db.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
-    header('Location: student_dashboard.php');
+    header('Location: profile.php');
     exit;
 }
 
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($user['user_type'] === 'admin') {
                     header('Location: admin/dashboard.php');
                 } else {
-                    header('Location: student_dashboard.php');
+                    header('Location: profile.php');
                 }
                 exit;
             } else {
@@ -282,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="success-message"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
         
-        <form method="POST" action="">
+        <form id="loginForm" method="POST" action="login.php">
             <div class="form-group">
                 <label for="username">Username or Email</label>
                 <input type="text" id="username" name="username" required 

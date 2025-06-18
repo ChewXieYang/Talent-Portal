@@ -384,7 +384,7 @@ if (isset($_GET['edit'])) {
         <div class="section">
             <h2 class="section-title"><?= $editing_service ? 'Edit Service' : 'Add New Service' ?></h2>
             
-            <form method="POST">
+            <form id="serviceForm" method="POST" action="my_services.php">
                 <?php if ($editing_service): ?>
                     <input type="hidden" name="update_service" value="1">
                     <input type="hidden" name="service_id" value="<?= $editing_service['id'] ?>">
