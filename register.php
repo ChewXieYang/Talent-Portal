@@ -321,7 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
         
-        <form method="POST" action="">
+        <form id="registerForm" method="POST" action="register.php">
             <div class="form-group">
                 <label for="username">Username <span class="required">*</span></label>
                 <input type="text" id="username" name="username" required 
