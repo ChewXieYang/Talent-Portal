@@ -35,6 +35,7 @@ $result = $conn->query($sql);
 <head>
     <title>Admin Dashboard</title>
     <link rel="stylesheet" type="text/css" href="css/dashboard.css">
+    <link rel="stylesheet" type="text/css" href="css/sidebar.css">
 </head>
 <body>
 

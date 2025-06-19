@@ -21,6 +21,7 @@
             <a href="services.php">👨‍🎓 Services Marketplace</a>
             <a href="news.php">📰 News</a>
             <a href="message_board.php">💬 Message Board</a>
+            <a href="faq.php">ℹ️ FAQ</a>
 
             <?php if (isset($_SESSION['user_id'])): ?>
                 <a href="profile.php">😊 Profile</a>

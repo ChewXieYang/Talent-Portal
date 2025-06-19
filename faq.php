@@ -1,3 +1,20 @@
+<?php
+include 'includes/db.php';
+
+// Check user type (optional)
+$user_type = '';
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT user_type FROM users WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $resultUser = $stmt->get_result();
+    if ($resultUser && $rowUser = $resultUser->fetch_assoc()) {
+        $user_type = $rowUser['user_type'];
+    }
+    $stmt->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +39,6 @@
 
         .sidebar {
             width: 250px;
-            background-color: #333;
             color: white;
             padding: 20px;
             position: fixed;
@@ -139,6 +155,11 @@
                 alert(errors.join("\\n"));
             }
         });
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
     </script>
 </body>
 </html>

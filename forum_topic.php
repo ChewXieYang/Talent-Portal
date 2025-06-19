@@ -122,413 +122,155 @@ $replies = $replies_stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/forum.css">
+    <link rel="stylesheet" href="css/sidebar.css">
     <title><?= htmlspecialchars($topic['title']) ?> - MMU Talent Showcase Forum</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f5f5f5;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .breadcrumb {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .breadcrumb a {
-            color: #005eff;
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .topic-header {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .topic-title {
-            font-size: 1.8em;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .topic-badges {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .badge {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .badge.pinned {
-            background: #28a745;
-            color: white;
-        }
-        
-        .badge.locked {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .topic-meta {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .topic-stats {
-            display: flex;
-            gap: 30px;
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        .post {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-        
-        .post-header {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .post-author {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .post-author img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .post-author-info h4 {
-            margin: 0;
-            color: #333;
-        }
-        
-        .post-author-info small {
-            color: #666;
-        }
-        
-        .post-date {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        .post-content {
-            padding: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        
-        .reply-form {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        
-        .reply-form h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            font-family: inherit;
-            min-height: 150px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-        
-        .btn {
-            background: #005eff;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #0046cc;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            margin-left: 10px;
-        }
-        
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-        
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
-            gap: 10px;
-        }
-        
-        .pagination a,
-        .pagination span {
-            padding: 10px 15px;
-            background: white;
-            border: 1px solid #dee2e6;
-            text-decoration: none;
-            color: #333;
-            border-radius: 5px;
-        }
-        
-        .pagination a:hover {
-            background: #f8f9fa;
-        }
-        
-        .pagination .current {
-            background: #005eff;
-            color: white;
-            border-color: #005eff;
-        }
-        
-        .message {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .locked-notice {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border: 1px solid #ffeaa7;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .topic-header,
-            .post,
-            .reply-form {
-                padding: 20px;
-            }
-            
-            .topic-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-    </style>
 </head>
 <body>
-    <?php include 'includes/header.php'; ?>
-    
-    <div class="container">
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <a href="index.php">Home</a> › 
-            <a href="forum.php">Forum</a> › 
-            <a href="forum_category.php?id=<?= $topic['category_id'] ?>"><?= htmlspecialchars($topic['category_name']) ?></a> › 
-            <?= htmlspecialchars($topic['title']) ?>
-        </div>
-        
-        <!-- Topic Header -->
-        <div class="topic-header">
-            <div class="topic-title">
-                <?= htmlspecialchars($topic['title']) ?>
-                <div class="topic-badges">
-                    <?php if ($topic['is_pinned']): ?>
-                        <span class="badge pinned">📌 Pinned</span>
-                    <?php endif; ?>
-                    <?php if ($topic['is_locked']): ?>
-                        <span class="badge locked">🔒 Locked</span>
-                    <?php endif; ?>
+    <div class="wrapper">
+        <?php include 'includes/sidebar.php'; ?>
+
+        <div class="main-content">
+            <?php include 'includes/header.php'; ?>
+
+            <div class="container">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a href="index.php">Home</a> › 
+                    <a href="forum.php">Forum</a> › 
+                    <a href="forum_category.php?id=<?= $topic['category_id'] ?>"><?= htmlspecialchars($topic['category_name']) ?></a> › 
+                    <?= htmlspecialchars($topic['title']) ?>
                 </div>
-            </div>
-            
-            <div class="topic-meta">
-                Started by <strong><?= htmlspecialchars($topic['full_name']) ?></strong> in 
-                <strong><a href="forum_category.php?id=<?= $topic['category_id'] ?>"><?= htmlspecialchars($topic['category_name']) ?></a></strong>
-                • <?= date('M j, Y g:i A', strtotime($topic['created_at'])) ?>
-            </div>
-            
-            <div class="topic-stats">
-                <span><strong><?= number_format($topic['reply_count']) ?></strong> replies</span>
-                <span><strong><?= number_format($topic['view_count']) ?></strong> views</span>
-                <span>Last reply: <?= date('M j, Y g:i A', strtotime($topic['last_reply_at'])) ?></span>
-            </div>
-        </div>
-        
-        <?php if ($message): ?>
-            <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
-        <?php endif; ?>
-        
-        <!-- Original Post -->
-        <div class="post">
-            <div class="post-header">
-                <div class="post-author">
-                    <img src="<?= !empty($topic['profile_picture_url']) ? htmlspecialchars($topic['profile_picture_url']) : 'assets/images/default-avatar.png' ?>" 
-                         alt="<?= htmlspecialchars($topic['full_name']) ?>">
-                    <div class="post-author-info">
-                        <h4><?= htmlspecialchars($topic['full_name']) ?></h4>
-                        <small>@<?= htmlspecialchars($topic['username']) ?></small>
-                    </div>
-                </div>
-                <div class="post-date">
-                    <?= date('M j, Y g:i A', strtotime($topic['created_at'])) ?>
-                </div>
-            </div>
-            <div class="post-content">
-                <?= nl2br(htmlspecialchars($topic['content'])) ?>
-            </div>
-        </div>
-        
-        <!-- Replies -->
-        <?php if ($replies->num_rows > 0): ?>
-            <?php while ($reply = $replies->fetch_assoc()): ?>
-            <div class="post" id="reply-<?= $reply['id'] ?>">
-                <div class="post-header">
-                    <div class="post-author">
-                        <img src="<?= !empty($reply['profile_picture_url']) ? htmlspecialchars($reply['profile_picture_url']) : 'assets/images/default-avatar.png' ?>" 
-                             alt="<?= htmlspecialchars($reply['full_name']) ?>">
-                        <div class="post-author-info">
-                            <h4><?= htmlspecialchars($reply['full_name']) ?></h4>
-                            <small>@<?= htmlspecialchars($reply['username']) ?></small>
+
+                <!-- Topic Header -->
+                <div class="topic-header">
+                    <div class="topic-title">
+                        <?= htmlspecialchars($topic['title']) ?>
+                        <div class="topic-badges">
+                            <?php if ($topic['is_pinned']): ?>
+                                <span class="badge pinned">📌 Pinned</span>
+                            <?php endif; ?>
+                            <?php if ($topic['is_locked']): ?>
+                                <span class="badge locked">🔒 Locked</span>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <div class="post-date">
-                        <?= date('M j, Y g:i A', strtotime($reply['created_at'])) ?>
+
+                    <div class="topic-meta">
+                        Started by <strong><?= htmlspecialchars($topic['full_name']) ?></strong> in 
+                        <strong><a href="forum_category.php?id=<?= $topic['category_id'] ?>"><?= htmlspecialchars($topic['category_name']) ?></a></strong>
+                        • <?= date('M j, Y g:i A', strtotime($topic['created_at'])) ?>
+                    </div>
+
+                    <div class="topic-stats">
+                        <span><strong><?= number_format($topic['reply_count']) ?></strong> replies</span>
+                        <span><strong><?= number_format($topic['view_count']) ?></strong> views</span>
+                        <span>Last reply: <?= date('M j, Y g:i A', strtotime($topic['last_reply_at'])) ?></span>
                     </div>
                 </div>
-                <div class="post-content">
-                    <?= nl2br(htmlspecialchars($reply['content'])) ?>
-                </div>
-            </div>
-            <?php endwhile; ?>
-        <?php endif; ?>
-        
-        <!-- Pagination for replies -->
-        <?php if ($total_pages > 1): ?>
-        <div class="pagination">
-            <?php if ($page > 1): ?>
-                <a href="?id=<?= $topic_id ?>&page=<?= $page - 1 ?>">← Previous</a>
-            <?php endif; ?>
-            
-            <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
-                <?php if ($i == $page): ?>
-                    <span class="current"><?= $i ?></span>
-                <?php else: ?>
-                    <a href="?id=<?= $topic_id ?>&page=<?= $i ?>"><?= $i ?></a>
+
+                <?php if ($message): ?>
+                    <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
                 <?php endif; ?>
-            <?php endfor; ?>
-            
-            <?php if ($page < $total_pages): ?>
-                <a href="?id=<?= $topic_id ?>&page=<?= $page + 1 ?>">Next →</a>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-        
-        <!-- Reply Form -->
-        <?php if ($topic['is_locked']): ?>
-            <div class="locked-notice">
-                🔒 This topic has been locked and is no longer accepting new replies.
-            </div>
-        <?php elseif (isset($_SESSION['user_id'])): ?>
-            <div class="reply-form" id="latest">
-                <h3>Post a Reply</h3>
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="reply_content">Your Reply *</label>
-                        <textarea id="reply_content" 
-                                  name="reply_content" 
-                                  required 
-                                  placeholder="Write your reply here..."></textarea>
+
+                <!-- Original Post -->
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="<?= !empty($topic['profile_picture_url']) ? htmlspecialchars($topic['profile_picture_url']) : 'assets/images/default-avatar.png' ?>" 
+                                 alt="<?= htmlspecialchars($topic['full_name']) ?>">
+                            <div class="post-author-info">
+                                <h4><?= htmlspecialchars($topic['full_name']) ?></h4>
+                                <small>@<?= htmlspecialchars($topic['username']) ?></small>
+                            </div>
+                        </div>
+                        <div class="post-date">
+                            <?= date('M j, Y g:i A', strtotime($topic['created_at'])) ?>
+                        </div>
                     </div>
-                    
-                    <button type="submit" class="btn">Post Reply</button>
-                    <a href="forum_category.php?id=<?= $topic['category_id'] ?>" class="btn btn-secondary">Back to Category</a>
-                </form>
+                    <div class="post-content">
+                        <?= nl2br(htmlspecialchars($topic['content'])) ?>
+                    </div>
+                </div>
+
+                <!-- Replies -->
+                <?php if ($replies->num_rows > 0): ?>
+                    <?php while ($reply = $replies->fetch_assoc()): ?>
+                    <div class="post" id="reply-<?= $reply['id'] ?>">
+                        <div class="post-header">
+                            <div class="post-author">
+                                <img src="<?= !empty($reply['profile_picture_url']) ? htmlspecialchars($reply['profile_picture_url']) : 'assets/images/default-avatar.png' ?>" 
+                                     alt="<?= htmlspecialchars($reply['full_name']) ?>">
+                                <div class="post-author-info">
+                                    <h4><?= htmlspecialchars($reply['full_name']) ?></h4>
+                                    <small>@<?= htmlspecialchars($reply['username']) ?></small>
+                                </div>
+                            </div>
+                            <div class="post-date">
+                                <?= date('M j, Y g:i A', strtotime($reply['created_at'])) ?>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <?= nl2br(htmlspecialchars($reply['content'])) ?>
+                        </div>
+                    </div>
+                    <?php endwhile; ?>
+                <?php endif; ?>
+
+                <!-- Pagination for replies -->
+                <?php if ($total_pages > 1): ?>
+                <div class="pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="?id=<?= $topic_id ?>&page=<?= $page - 1 ?>">← Previous</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = max(1, $page - 2); $i <= min($total_pages, $page + 2); $i++): ?>
+                        <?php if ($i == $page): ?>
+                            <span class="current"><?= $i ?></span>
+                        <?php else: ?>
+                            <a href="?id=<?= $topic_id ?>&page=<?= $i ?>"><?= $i ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $total_pages): ?>
+                        <a href="?id=<?= $topic_id ?>&page=<?= $page + 1 ?>">Next →</a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+
+                <!-- Reply Form -->
+                <?php if ($topic['is_locked']): ?>
+                    <div class="locked-notice">
+                        🔒 This topic has been locked and is no longer accepting new replies.
+                    </div>
+                <?php elseif (isset($_SESSION['user_id'])): ?>
+                    <div class="reply-form" id="latest">
+                        <h3>Post a Reply</h3>
+                        <form method="POST">
+                            <div class="form-group">
+                                <label for="reply_content">Your Reply *</label>
+                                <textarea id="reply_content" 
+                                          name="reply_content" 
+                                          required 
+                                          placeholder="Write your reply here..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn">Post Reply</button>
+                            <a href="forum_category.php?id=<?= $topic['category_id'] ?>" class="btn btn-secondary">Back to Category</a>
+                        </form>
+                    </div>
+                <?php else: ?>
+                    <div class="reply-form">
+                        <h3>Join the Discussion</h3>
+                        <p>You must be logged in to reply to this topic.</p>
+                        <a href="login.php" class="btn">Login</a>
+                        <a href="register.php" class="btn btn-secondary">Register</a>
+                    </div>
+                <?php endif; ?>
             </div>
-        <?php else: ?>
-            <div class="reply-form">
-                <h3>Join the Discussion</h3>
-                <p>You must be logged in to reply to this topic.</p>
-                <a href="login.php" class="btn">Login</a>
-                <a href="register.php" class="btn btn-secondary">Register</a>
-            </div>
-        <?php endif; ?>
+
+            <?php include 'includes/footer.php'; ?>
+        </div>
     </div>
-    
-    <?php include 'includes/footer.php'; ?>
 </body>
 </html>
