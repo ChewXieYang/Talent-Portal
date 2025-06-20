@@ -102,7 +102,7 @@ if (isset($_SESSION['user_id'])) {
 
             <section class="question-form-section">
                 <h2>Have More Questions?</h2>
-                <p>Send us your inquiry below:</p>
+                <p>Send us your inquiry below and we'll get back to you as soon as possible.</p>
                 <form action="submit_question.php" method="post">
                     <label for="email">Your Email:</label>
                     <input type="email" name="email" id="email" required>
