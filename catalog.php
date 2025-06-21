@@ -178,11 +178,10 @@ $result = $stmt->get_result();
                 <?php endif; ?>
             </div>
         <?php endif; ?>
-        <?php include 'includes/footer.php'; ?>
     </div>
-
+    
 </div>
-
+<?php include 'includes/footer.php'; ?>
 <script>
     function toggleFilters() {
         const filterBox = document.getElementById('filterBox');

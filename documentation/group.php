@@ -19,7 +19,7 @@
     <section class="group-container">
         <!-- Member 1 -->
         <figure class="member">
-            <img src="images/koyuker.jpg" alt="Photo of Member 1">
+            <img src="images/xavier.jpeg" alt="Photo of Member 1">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Chew Xie Yang</td></tr>
@@ -45,7 +45,7 @@
 
         <!-- Member 3 -->
         <figure class="member">
-            <img src="images/koyuker.jpg" alt="Photo of Member 3">
+            <img src="images/hannan.jpeg" alt="Photo of Member 3">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Noor Hannan bin Noor Hamsuruddin</td></tr>
