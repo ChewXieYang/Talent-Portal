@@ -32,21 +32,9 @@ if (isset($_SESSION['user_id'])) {
 
         .main-content {
             flex-grow: 1;
-            padding: 20px;
-            margin-left: 250px;
             background-color: #f5f5f5;
         }
-
-        .sidebar {
-            width: 250px;
-            color: white;
-            padding: 20px;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            overflow-y: auto;
-        }
+        
     </style>
 </head>
 <body>
@@ -54,6 +42,7 @@ if (isset($_SESSION['user_id'])) {
         <?php include 'includes/sidebar.php'; ?>
 
         <div class="main-content">
+            <?php include 'includes/header.php'; ?>
             <?php if (isset($_GET['success'])): ?>
                 <div class="success-message">Your question has been submitted successfully!</div>
             <?php elseif (isset($_GET['error'])): ?>
