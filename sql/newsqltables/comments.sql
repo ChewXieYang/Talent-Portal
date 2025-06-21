@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 17, 2025 at 03:25 PM
+-- Generation Time: Jun 21, 2025 at 08:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -29,19 +29,11 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL,
-  `image_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `content` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `comments`
---
-
-INSERT INTO `comments` (`id`, `image_id`, `user_id`, `content`, `created_at`) VALUES
-(1, 1, 8, 'Hello', '2025-06-17 06:35:52'),
-(2, 1, 8, 'test', '2025-06-17 06:40:40');
 
 --
 -- Indexes for dumped tables
@@ -52,7 +44,7 @@ INSERT INTO `comments` (`id`, `image_id`, `user_id`, `content`, `created_at`) VA
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `image_id` (`image_id`),
+  ADD KEY `post_id` (`post_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
@@ -73,7 +65,7 @@ ALTER TABLE `comments`
 -- Constraints for table `comments`
 --
 ALTER TABLE `comments`
-  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`image_id`) REFERENCES `talent_uploads` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `talent_uploads` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
