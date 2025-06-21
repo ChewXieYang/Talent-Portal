@@ -1,5 +1,4 @@
 </main>
-<footer>
     <div class="sidebar">
         <?php if (isset($_SESSION['user_id'])): ?>
             <div class="user-section" id="user-section">
@@ -33,6 +32,5 @@
             <?php endif; ?>
         <?php endif; ?>
     </div>
-</footer>
 </body>
 </html>

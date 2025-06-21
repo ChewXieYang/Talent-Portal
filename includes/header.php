@@ -19,7 +19,7 @@
             <a href="message_board.php"> Message Board</a>
             <a href="news.php"> News</a>
             <a href="cart.php" class="cart-icon">
-                <span class="cart-count" id="headerCartCount">0</span>
+                Shopping Cart<span class="cart-count" id="headerCartCount">0</span>
             </a>
             
             <?php if (isset($_SESSION['user_id'])): ?>
