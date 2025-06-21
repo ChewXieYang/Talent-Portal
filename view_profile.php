@@ -4,6 +4,7 @@ include 'includes/db.php';
 // Get user ID from URL parameter
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
+
 if ($user_id <= 0) {
     header('Location: catalog.php');
     exit;
@@ -69,8 +70,42 @@ $services_result = $services_stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <title><?= htmlspecialchars($user['full_name']) ?> - MMU Talent Showcase</title>
     <style>
+        .message-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #0079d3;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 10px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .message-button i {
+            margin-right: 6px;
+        }
+        .message-button:hover {
+            background: #005fa3;
+        }
+
+        .send-msg {
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #0079d3;
+            text-decoration: none;
+        }
+        .send-msg i {
+            margin-right: 5px;
+        }
+        .send-msg:hover {
+            text-decoration: underline;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -407,6 +442,14 @@ $services_result = $services_stmt->get_result();
                 <img src="<?= htmlspecialchars($user['profile_picture_url'] ?: 'https://via.placeholder.com/150x150?text=No+Image') ?>" 
                      alt="<?= htmlspecialchars($user['full_name']) ?>" 
                      class="profile-picture">
+                     <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $user_id): ?>
+                        <a href="chat.php?to=<?= $user_id ?>" class="message-button">
+                            <i class="fas fa-envelope"></i> Message
+                        </a>
+                    <?php endif; ?>
+
+
+</a>
                 
                 <div class="profile-info">
                     <h1><?= htmlspecialchars($user['full_name']) ?></h1>
