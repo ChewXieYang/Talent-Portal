@@ -253,7 +253,9 @@ $services_result = $services_stmt->get_result();
             border-radius: 8px;
             overflow: hidden;
             background: white;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
         }
         
         .portfolio-item:hover {
@@ -270,6 +272,14 @@ $services_result = $services_stmt->get_result();
             justify-content: center;
             font-size: 48px;
             color: #999;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .portfolio-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .portfolio-info {
@@ -280,6 +290,7 @@ $services_result = $services_stmt->get_result();
             font-weight: bold;
             color: #333;
             margin-bottom: 5px;
+            font-size: 14px;
         }
         
         .portfolio-meta {
@@ -346,6 +357,21 @@ $services_result = $services_stmt->get_result();
             text-align: center;
             padding: 40px;
             color: #666;
+        }
+        
+        .view-all-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .view-all-btn:hover {
+            background: #0056b3;
         }
         
         @media (max-width: 768px) {
@@ -455,15 +481,28 @@ $services_result = $services_stmt->get_result();
         <!-- Portfolio Section -->
         <?php if ($portfolio_result->num_rows > 0): ?>
             <div class="section">
-                <h2 class="section-title">Portfolio</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin-bottom: 0;">Portfolio</h2>
+                    <?php
+                    // Get total portfolio count for this user
+                    $count_stmt = $conn->prepare("SELECT COUNT(*) as total FROM portfolio_items WHERE user_id = ?");
+                    $count_stmt->bind_param("i", $user_id);
+                    $count_stmt->execute();
+                    $total_count = $count_stmt->get_result()->fetch_assoc()['total'];
+                    if ($total_count > 10):
+                    ?>
+                        <a href="browse_portfolio.php?user_id=<?= $user_id ?>" class="view-all-btn">
+                            View All (<?= $total_count ?> items)
+                        </a>
+                    <?php endif; ?>
+                </div>
                 <div class="portfolio-grid">
                     <?php while ($item = $portfolio_result->fetch_assoc()): ?>
-                        <div class="portfolio-item">
+                        <a href="view_portfolio_item.php?id=<?= $item['id'] ?>" class="portfolio-item">
                             <div class="portfolio-thumb">
                                 <?php if ($item['file_type'] == 'image' && $item['thumbnail_url']): ?>
                                     <img src="<?= htmlspecialchars($item['thumbnail_url']) ?>" 
-                                         alt="<?= htmlspecialchars($item['title']) ?>"
-                                         style="width: 100%; height: 100%; object-fit: cover;">
+                                         alt="<?= htmlspecialchars($item['title']) ?>">
                                 <?php else: ?>
                                     <?php
                                     $icons = [
@@ -489,7 +528,7 @@ $services_result = $services_stmt->get_result();
                                     <?php endif; ?>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     <?php endwhile; ?>
                 </div>
             </div>
