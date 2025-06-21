@@ -1,344 +1,165 @@
 <?php
 include 'includes/db.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php?error=login_required');
-    exit;
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    die("Invalid post ID.");
 }
 
-$user_id = $_SESSION['user_id'];
-$message = '';
-$messageType = '';
+$post_id = intval($_GET['id']);
 
-// Get pre-selected category if coming from forum_category.php
-$preselected_category = isset($_GET['category']) ? intval($_GET['category']) : 0;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment']) && isset($_SESSION['user_id'])) {
+    $comment = trim($_POST['comment']);
+    if ($comment !== '') {
+        $stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)");
+        $stmt->bind_param("iis", $post_id, $_SESSION['user_id'], $comment);
+        $stmt->execute();
+        $stmt->close();
 
-// Get user info
-$user_stmt = $conn->prepare("SELECT full_name, username FROM users WHERE id = ?");
-$user_stmt->bind_param("i", $user_id);
-$user_stmt->execute();
-$user = $user_stmt->get_result()->fetch_assoc();
-
-// Get all active forum categories
-$categories_stmt = $conn->prepare("SELECT id, category_name FROM forum_categories WHERE is_active = 1 ORDER BY category_name");
-$categories_stmt->execute();
-$categories = $categories_stmt->get_result();
-
-// Handle topic creation
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $category_id = intval($_POST['category_id']);
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
-    
-    // Validate inputs
-    if (empty($category_id) || empty($title) || empty($content)) {
-        $message = 'All fields are required.';
-        $messageType = 'error';
-    } elseif (strlen($title) < 5) {
-        $message = 'Topic title must be at least 5 characters long.';
-        $messageType = 'error';
-    } elseif (strlen($content) < 10) {
-        $message = 'Topic content must be at least 10 characters long.';
-        $messageType = 'error';
-    } else {
-        // Check if category exists and is active
-        $check_category = $conn->prepare("SELECT id FROM forum_categories WHERE id = ? AND is_active = 1");
-        $check_category->bind_param("i", $category_id);
-        $check_category->execute();
-        $result = $check_category->get_result();
-        
-        if ($result->num_rows === 0) {
-            $message = 'Invalid category selected.';
-            $messageType = 'error';
-        } else {
-            // Insert new topic
-            $stmt = $conn->prepare("INSERT INTO forum_topics (user_id, category_id, title, content, created_at, last_reply_at, last_reply_user_id) VALUES (?, ?, ?, ?, NOW(), NOW(), ?)");
-            $stmt->bind_param("iissi", $user_id, $category_id, $title, $content, $user_id);
-            
-            if ($stmt->execute()) {
-                $topic_id = $conn->insert_id;
-                
-                // Redirect to the new topic
-                header('Location: forum_topic.php?id=' . $topic_id);
-                exit;
-            } else {
-                $message = 'Error creating topic. Please try again.';
-                $messageType = 'error';
-            }
-        }
+        // Redirect to prevent form resubmission
+        header("Location: detailed_view.php?id=" . $post_id . "#comment-form");
+        exit;
     }
 }
-?>
 
+
+$stmt = $conn->prepare("
+    SELECT t.*, u.full_name, u.profile_picture_url 
+    FROM talent_uploads t 
+    JOIN users u ON t.user_id = u.id 
+    WHERE t.id = ? AND t.file_type = 'image'
+");
+$stmt->bind_param("i", $post_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$post = $result->fetch_assoc();
+$stmt->close();
+$comments = [];
+$stmt = $conn->prepare("
+    SELECT c.content, c.created_at, u.full_name, u.profile_picture_url
+    FROM comments c
+    JOIN users u ON c.user_id = u.id
+    WHERE c.post_id = ?
+    ORDER BY c.created_at DESC
+");
+$stmt->bind_param("i", $post_id);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $comments[] = $row;
+}
+$stmt->close();
+if (!$post) {
+    die("Post not found.");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Topic - MMU Talent Showcase Forum</title>
+    <title><?= htmlspecialchars($post['title']) ?> - Detailed View</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
+            background: #dae0e6;
             margin: 0;
-            background-color: #f5f5f5;
-            line-height: 1.6;
+            padding: 0;
         }
-        
+
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
+            width: 640px;
+            margin: 40px auto;
             background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        
-        .header h1 {
-            color: #333;
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
             margin-bottom: 10px;
         }
-        
-        .form-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 30px;
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
         }
-        
-        .user-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 25px;
-            border-left: 4px solid #005eff;
+
+        .meta {
+            font-size: 12px;
+            color: #888;
         }
-        
-        .guidelines {
-            background: #e7f3ff;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 25px;
-            border-left: 4px solid #005eff;
-        }
-        
-        .guidelines h4 {
-            margin-top: 0;
-            color: #005eff;
-        }
-        
-        .guidelines ul {
-            margin-bottom: 0;
-        }
-        
-        .guidelines li {
-            margin-bottom: 5px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-        
-        .form-group textarea {
-            min-height: 200px;
-            resize: vertical;
-        }
-        
-        .char-count {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .btn {
-            background: #005eff;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #0046cc;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            margin-left: 10px;
-        }
-        
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-        
-        .message {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .breadcrumb {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .breadcrumb a {
-            color: #005eff;
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
+
+        .description {
+            margin: 15px 0;
         }
     </style>
-    <script>
-        function updateCharCount(inputId, countId, maxLength) {
-            const input = document.getElementById(inputId);
-            const counter = document.getElementById(countId);
-            counter.textContent = input.value.length + '/' + maxLength + ' characters';
-            
-            if (input.value.length > maxLength * 0.9) {
-                counter.style.color = '#dc3545';
-            } else {
-                counter.style.color = '#666';
-            }
-        }
-        
-        // Update character counts on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCharCount('title', 'title-count', 200);
-            updateCharCount('content', 'content-count', 5000);
-        });
-    </script>
 </head>
 <body>
-    <?php include 'includes/header.php'; ?>
-    
-    <div class="container">
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <a href="index.php">Home</a> › 
-            <a href="forum.php">Forum</a> › 
-            Create New Topic
-        </div>
-        
-        <div class="header">
-            <h1>Create New Topic</h1>
-            <p>Start a new discussion in the community forum</p>
-        </div>
-        
-        <?php if ($message): ?>
-            <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
-        <?php endif; ?>
-        
-        <div class="form-container">
-            <div class="user-info">
-                <strong>Posting as:</strong> <?= htmlspecialchars($user['full_name']) ?> (<?= htmlspecialchars($user['username']) ?>)
-            </div>
-            
-            <div class="guidelines">
-                <h4>Community Guidelines</h4>
-                <ul>
-                    <li>Be respectful and constructive in your discussions</li>
-                    <li>Keep topics relevant to the selected category</li>
-                    <li>Use clear, descriptive titles for better visibility</li>
-                    <li>Provide detailed content to encourage meaningful responses</li>
-                    <li>Search existing topics before creating new ones</li>
-                </ul>
-            </div>
-            
-            <form method="POST" action="create_topic.php">
-                <div class="form-group">
-                    <label for="category_id">Category *</label>
-                    <select id="category_id" name="category_id" required>
-                        <option value="">Select a category...</option>
-                        <?php while ($category = $categories->fetch_assoc()): ?>
-                            <option value="<?= $category['id'] ?>" 
-                                    <?= ($preselected_category == $category['id'] || (isset($_POST['category_id']) && $_POST['category_id'] == $category['id'])) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($category['category_name']) ?>
-                            </option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="title">Topic Title *</label>
-                    <input type="text" 
-                           id="title" 
-                           name="title" 
-                           required 
-                           maxlength="200"
-                           placeholder="Enter a descriptive title for your topic..."
-                           value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : '' ?>"
-                           oninput="updateCharCount('title', 'title-count', 200)">
-                    <div id="title-count" class="char-count">0/200 characters</div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="content">Content *</label>
-                    <textarea id="content" 
-                              name="content" 
-                              required 
-                              maxlength="5000"
-                              placeholder="Write your topic content here. Be detailed and clear to encourage good discussions..."
-                              oninput="updateCharCount('content', 'content-count', 5000)"><?= isset($_POST['content']) ? htmlspecialchars($_POST['content']) : '' ?></textarea>
-                    <div id="content-count" class="char-count">0/5000 characters</div>
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <button type="submit" class="btn">Create Topic</button>
-                    <a href="forum.php" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+
+<div class="container">
+    <a href="student_dashboard.php" class="back-button">← Back to Dashboard</a>
+
+    <div class="user-info">
+        <img src="<?= htmlspecialchars($post['profile_picture_url']) ?>" alt="Profile">
+        <strong><?= htmlspecialchars($post['full_name']) ?></strong>
     </div>
-    
-    <?php include 'includes/footer.php'; ?>
+
+    <h2><?= htmlspecialchars($post['title']) ?></h2>
+    <img src="<?= htmlspecialchars($post['file_url']) ?>" alt="Post Image" class="post-image">
+    <div class="description"><?= nl2br(htmlspecialchars($post['description'])) ?></div>
+    <div class="meta">Uploaded on <?= date("F j, Y", strtotime($post['upload_date'])) ?> | ID: <?= $post['id'] ?></div>
+    <hr>
+    <h3 id="comment-form">Comments (<?= count($comments) ?>)</h3>
+    <?php if (count($comments) > 0): ?>
+        <?php foreach ($comments as $comment): ?>
+            <div style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                <div class="user-info">
+                    <img src="<?= htmlspecialchars($comment['profile_picture_url']) ?>" alt="User">
+                    <strong><?= htmlspecialchars($comment['full_name']) ?></strong>
+                </div>
+                <div><?= nl2br(htmlspecialchars($comment['content'])) ?></div>
+                <div class="meta"><?= date("F j, Y H:i", strtotime($comment['created_at'])) ?></div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>No comments yet.</p>
+    <?php endif; ?>
+    <hr>
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <h3>Leave a Comment</h3>
+        <form method="post" action="#comment-form" id="comment-form">
+            <textarea name="comment" rows="4" style="width:100%; padding:8px;" placeholder="Write your comment here..." required></textarea>
+            <button type="submit" style="margin-top: 10px; padding: 8px 16px; background: #0079d3; color: white; border: none; border-radius: 4px;">Post Comment</button>
+        </form>
+    <?php else: ?>
+        <p><a href="login.php">Log in</a> to post a comment.</p>
+    <?php endif; ?>
+
+
+</div>
+
 </body>
 </html>
