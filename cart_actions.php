@@ -22,7 +22,6 @@ switch ($action) {
             exit;
         }
         
-        // Get service details
         $stmt = $conn->prepare("SELECT * FROM services WHERE id = ? AND is_available = 1");
         $stmt->bind_param("i", $service_id);
         $stmt->execute();
@@ -33,24 +32,20 @@ switch ($action) {
             exit;
         }
         
-        // Check if user is trying to add their own service
         if ($service['user_id'] == $user_id) {
             echo json_encode(['success' => false, 'message' => 'Cannot add your own service to cart']);
             exit;
         }
         
-        // Check if item already in cart
         $stmt = $conn->prepare("SELECT id FROM shopping_cart WHERE user_id = ? AND service_id = ?");
         $stmt->bind_param("ii", $user_id, $service_id);
         $stmt->execute();
         $existing = $stmt->get_result()->fetch_assoc();
         
         if ($existing) {
-            // Update existing item
             $stmt = $conn->prepare("UPDATE shopping_cart SET quantity = quantity + ?, custom_requirements = ? WHERE id = ?");
             $stmt->bind_param("isi", $quantity, $custom_requirements, $existing['id']);
         } else {
-            // Add new item
             $stmt = $conn->prepare("INSERT INTO shopping_cart (user_id, service_id, quantity, custom_requirements, price) VALUES (?, ?, ?, ?, ?)");
             $stmt->bind_param("iiisd", $user_id, $service_id, $quantity, $custom_requirements, $service['price']);
         }
@@ -80,7 +75,6 @@ switch ($action) {
         $quantity = intval($_POST['quantity']);
         
         if ($quantity <= 0) {
-            // Remove item if quantity is 0 or negative
             $stmt = $conn->prepare("DELETE FROM shopping_cart WHERE id = ? AND user_id = ?");
             $stmt->bind_param("ii", $cart_id, $user_id);
         } else {
