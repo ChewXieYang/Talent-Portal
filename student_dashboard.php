@@ -92,6 +92,7 @@ $result = $conn->query($sql);
             color: white;
             text-decoration: none;
             border-radius: 4px;
+            margin-top: 10px;
             margin-left: 8px;
             font-size: 14px;
             transition: background 0.3s;
@@ -109,19 +110,15 @@ $result = $conn->query($sql);
 <?php include 'includes/sidebar.php'; ?>
 
 <div class="main">
-    <div class="header-bar">
-        <img src="bell-icon.png" alt="Notifications">
-        <img src="user-icon.png" alt="Profile">
-        <a href="logout.php" class="logout-link" style="margin-left: auto; font-weight: bold; text-decoration: none; color: #d00; padding: 8px;">Logout</a>
-    </div>
+    <?php include 'includes/header.php'; ?>
 
     <form method="GET" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-        <div style="flex: 1;">
+        <div style="flex: 1; margin-top: 10px;">
             <input name="q" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Search posts or users" style="width: 100%; padding: 8px;">
         </div>
-        <div style="margin-left: 10px;">
+        <div style="margin-left: 10px; margin-top: 10px;">
             <button type="submit" style="padding: 8px 12px;">Search</button>
-            <a href="upload_talent.php" class="upload-btn">Upload Talent</a>
+            <a href="upload_talent.php" class="upload-btn">Upload Post</a>
         </div>
     </form>
 
