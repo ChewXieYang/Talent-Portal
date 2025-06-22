@@ -1,7 +1,6 @@
 <?php
 include 'includes/db.php';
 
-// Get portfolio item ID from URL
 $item_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if ($item_id <= 0) {
@@ -9,7 +8,6 @@ if ($item_id <= 0) {
     exit;
 }
 
-// Get portfolio item details with user and talent information
 $stmt = $conn->prepare("
     SELECT pi.*, u.full_name, u.username, u.profile_picture_url, ut.talent_title, tc.category_name 
     FROM portfolio_items pi
@@ -29,12 +27,10 @@ if ($result->num_rows === 0) {
 
 $item = $result->fetch_assoc();
 
-// Update view count
 $update_stmt = $conn->prepare("UPDATE portfolio_items SET views = views + 1 WHERE id = ?");
 $update_stmt->bind_param("i", $item_id);
 $update_stmt->execute();
 
-// Get other portfolio items from the same user (excluding current item)
 $other_items_stmt = $conn->prepare("
     SELECT id, title, file_type, thumbnail_url, file_url 
     FROM portfolio_items 
@@ -46,7 +42,6 @@ $other_items_stmt->bind_param("ii", $item['user_id'], $item_id);
 $other_items_stmt->execute();
 $other_items = $other_items_stmt->get_result();
 
-// Function to get file size in human readable format
 function formatFileSize($bytes) {
     if ($bytes >= 1073741824) {
         return number_format($bytes / 1073741824, 2) . ' GB';
