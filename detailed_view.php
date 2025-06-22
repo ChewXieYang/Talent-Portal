@@ -1,44 +1,49 @@
 <?php
 include 'includes/db.php';
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+$post_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+if ($post_id <= 0) {
     die("Invalid post ID.");
 }
 
-$post_id = intval($_GET['id']);
-
+// Handle comment submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment']) && isset($_SESSION['user_id'])) {
-    $comment = trim($_POST['comment']);
-    if ($comment !== '') {
+    $comment_content = trim($_POST['comment']);
+    $user_id = $_SESSION['user_id'];
+    
+    if (!empty($comment_content)) {
         $stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)");
-        $stmt->bind_param("iis", $post_id, $_SESSION['user_id'], $comment);
+        $stmt->bind_param("iis", $post_id, $user_id, $comment_content);
         $stmt->execute();
         $stmt->close();
-
-        // Redirect to prevent form resubmission
-        header("Location: detailed_view.php?id=" . $post_id . "#comment-form");
+        
+        // Redirect to avoid resubmission
+        header("Location: detailed_view.php?id=$post_id#comment-form");
         exit;
     }
 }
 
-
+// Get post details
 $stmt = $conn->prepare("
-    SELECT t.*, u.full_name, u.profile_picture_url 
-    FROM talent_uploads t 
-    JOIN users u ON t.user_id = u.id 
-    WHERE t.id = ? AND t.file_type = 'image'
+    SELECT p.*, u.full_name, u.profile_picture_url 
+    FROM talent_uploads p 
+    JOIN users u ON p.user_id = u.id 
+    WHERE p.id = ? LIMIT 1
 ");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $post = $result->fetch_assoc();
 $stmt->close();
+
+// Get comments
 $comments = [];
 $stmt = $conn->prepare("
-    SELECT c.content, c.created_at, u.full_name, u.profile_picture_url
-    FROM comments c
-    JOIN users u ON c.user_id = u.id
-    WHERE c.post_id = ?
+    SELECT c.*, u.full_name, u.profile_picture_url 
+    FROM comments c 
+    JOIN users u ON c.user_id = u.id 
+    WHERE c.post_id = ? 
     ORDER BY c.created_at DESC
 ");
 $stmt->bind_param("i", $post_id);
@@ -48,6 +53,7 @@ while ($row = $result->fetch_assoc()) {
     $comments[] = $row;
 }
 $stmt->close();
+
 if (!$post) {
     die("Post not found.");
 }
@@ -57,6 +63,7 @@ if (!$post) {
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($post['title']) ?> - Detailed View</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/detailed_view.css">
 </head>
 <body>
@@ -77,7 +84,7 @@ if (!$post) {
     <h3 id="comment-form">Comments (<?= count($comments) ?>)</h3>
     <?php if (count($comments) > 0): ?>
         <?php foreach ($comments as $comment): ?>
-            <div style="margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+            <div class="detailed-view-comment">
                 <div class="user-info">
                     <img src="<?= htmlspecialchars($comment['profile_picture_url']) ?>" alt="User">
                     <strong><?= htmlspecialchars($comment['full_name']) ?></strong>
@@ -92,15 +99,13 @@ if (!$post) {
     <hr>
     <?php if (isset($_SESSION['user_id'])): ?>
         <h3>Leave a Comment</h3>
-        <form method="post" action="#comment-form" id="comment-form">
-            <textarea name="comment" rows="4" style="width:100%; padding:8px;" placeholder="Write your comment here..." required></textarea>
-            <button type="submit" style="margin-top: 10px; padding: 8px 16px; background: #0079d3; color: white; border: none; border-radius: 4px;">Post Comment</button>
+        <form method="post" action="#comment-form" id="comment-form" class="detailed-view-comment-form">
+            <textarea name="comment" rows="4" class="detailed-view-comment-textarea" placeholder="Write your comment here..." required></textarea>
+            <button type="submit" class="detailed-view-comment-btn">Post Comment</button>
         </form>
     <?php else: ?>
         <p><a href="login.php">Log in</a> to post a comment.</p>
     <?php endif; ?>
-
-
 </div>
 
 </body>
