@@ -58,7 +58,7 @@
 
         <!-- Member 4 -->
         <figure class="member">
-            <img src="images/koyuker.jpg" alt="Photo of Member 4">
+            <img src="images/atif.jpeg" alt="Photo of Member 4">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Wan Muhammad Atif bin Taram Satiraksa</td></tr>
