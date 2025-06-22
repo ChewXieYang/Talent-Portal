@@ -3238,6 +3238,39 @@ textarea {
     top: 6px;
 }
 
+/* ============================================
+   COMMON LAYOUT STYLES
+   ============================================ */
+
+/* Wrapper for sidebar + main content layout */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+/* Responsive wrapper adjustments */
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+    }
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
     .btn {
