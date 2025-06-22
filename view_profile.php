@@ -1,7 +1,6 @@
 <?php
 include 'includes/db.php';
 
-// Get user ID from URL parameter
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 
@@ -10,7 +9,6 @@ if ($user_id <= 0) {
     exit;
 }
 
-// Get user details
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ? AND status = 'active'");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -24,7 +22,6 @@ if ($user_result->num_rows === 0) {
 
 $user = $user_result->fetch_assoc();
 
-// Get user's talents with category information
 $talents_stmt = $conn->prepare("
     SELECT ut.*, tc.category_name 
     FROM user_talents ut
@@ -36,7 +33,6 @@ $talents_stmt->bind_param("i", $user_id);
 $talents_stmt->execute();
 $talents_result = $talents_stmt->get_result();
 
-// Get user's portfolio items (if you have any)
 $portfolio_stmt = $conn->prepare("
     SELECT pi.*, ut.talent_title 
     FROM portfolio_items pi
@@ -49,7 +45,6 @@ $portfolio_stmt->bind_param("i", $user_id);
 $portfolio_stmt->execute();
 $portfolio_result = $portfolio_stmt->get_result();
 
-// Get user's services (if you have any)
 $services_stmt = $conn->prepare("
     SELECT s.*, ut.talent_title 
     FROM services s
@@ -60,9 +55,6 @@ $services_stmt = $conn->prepare("
 $services_stmt->bind_param("i", $user_id);
 $services_stmt->execute();
 $services_result = $services_stmt->get_result();
-
-// Update view count (optional - you can add a views column to users table later)
-// For now, we'll skip this but you can add it later if needed
 ?>
 
 <!DOCTYPE html>
