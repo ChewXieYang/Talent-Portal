@@ -1,7 +1,6 @@
 <?php
 include 'includes/db.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php?error=login_required');
     exit;
@@ -11,18 +10,15 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $messageType = '';
 
-// Get all active forum categories
 $categories_stmt = $conn->prepare("SELECT id, category_name FROM forum_categories WHERE is_active = 1 ORDER BY category_name");
 $categories_stmt->execute();
 $categories = $categories_stmt->get_result();
 
-// Handle topic creation
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category_id = intval($_POST['category_id']);
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
-    
-    // Validate inputs
+
     if (empty($category_id) || empty($title) || empty($content)) {
         $message = 'All fields are required.';
         $messageType = 'error';
@@ -33,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Topic content must be at least 10 characters long.';
         $messageType = 'error';
     } else {
-        // Check if category exists and is active
         $check_category = $conn->prepare("SELECT id FROM forum_categories WHERE id = ? AND is_active = 1");
         $check_category->bind_param("i", $category_id);
         $check_category->execute();
@@ -50,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->execute()) {
                 $topic_id = $conn->insert_id;
                 
-                // Log activity
                 $activity_stmt = $conn->prepare("INSERT INTO activity_log (user_id, action_type, action_description, ip_address) VALUES (?, ?, ?, ?)");
                 $action_type = 'forum_topic_create';
                 $action_desc = 'Created new topic: ' . $title;
@@ -58,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $activity_stmt->bind_param("isss", $user_id, $action_type, $action_desc, $ip_address);
                 $activity_stmt->execute();
                 
-                // Redirect to the new topic
                 header('Location: forum_topic.php?id=' . $topic_id);
                 exit;
             } else {
@@ -69,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get user details for display
 $user_stmt = $conn->prepare("SELECT full_name, username FROM users WHERE id = ?");
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
@@ -354,13 +346,11 @@ $user = $user_result->fetch_assoc();
             }
         }
         
-        // Initialize character counts on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateCharCount('title', 'title-count', 200);
             updateCharCount('content', 'content-count', 5000);
         });
         
-        // Form validation
         document.querySelector('form').addEventListener('submit', function(e) {
             const title = document.getElementById('title').value.trim();
             const content = document.getElementById('content').value.trim();
