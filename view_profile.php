@@ -3,7 +3,6 @@ include 'includes/db.php';
 
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-
 if ($user_id <= 0) {
     header('Location: catalog.php');
     exit;
