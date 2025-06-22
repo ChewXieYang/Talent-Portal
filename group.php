@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Group Members</title>
-    <link rel="stylesheet" href="group.css">
+    <link rel="stylesheet" href="css/group.css">
+    <link rel="stylesheet" href="css/style.css">
+
 </head>
 <body>
-    <!-- Back to Home Button -->
-    <div class="back-button">
-        <a href="../index.php">← Back to Home</a>
-
-    </div>
+    <?php include 'includes/header.php'; ?>
 
     <header>
         <h1>Group Members</h1>
     </header>
 
     <section class="group-container">
-        <!-- Member 1 -->
+        <!-- Chew Xie Yang -->
         <figure class="member">
-            <img src="images/xavier.jpeg" alt="Photo of Member 1">
+            <img src="uploads/members/xavier.jpeg" alt="Photo of Member 1">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Chew Xie Yang</td></tr>
@@ -30,22 +28,22 @@
             </figcaption>
         </figure>
 
-        <!-- Member 2 -->
+        <!-- Melvin Hee Yi Heng-->
         <figure class="member">
-            <img src="images/koyuker.jpg" alt="Photo of Member 2">
+            <img src="uploads/members/melvin.jpeg" alt="Photo of Member 2">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Melvin Hee Yi Heng</td></tr>
                     <tr><th>Student ID:</th><td>1211108115</td></tr>
-                    <tr><th>Section:</th><td>TC2L</td></tr>
+                    <tr><th>Section:</th><td>TC1L</td></tr>
                     <tr><th>Contact:</th><td><a href="mailto:1211108115@student.mmu.edu.my">1211108115@student.mmu.edu.my</a></td></tr>
                 </table>
             </figcaption>
         </figure>
 
-        <!-- Member 3 -->
+        <!-- Noor Hannan bin Noor Hamsuruddin -->
         <figure class="member">
-            <img src="images/hannan.jpeg" alt="Photo of Member 3">
+            <img src="uploads/members/hannan.jpeg" alt="Photo of Member 3">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Noor Hannan bin Noor Hamsuruddin</td></tr>
@@ -56,9 +54,9 @@
             </figcaption>
         </figure>
 
-        <!-- Member 4 -->
+        <!-- Wan Muhammad Atif bin Taram Satiraksa -->
         <figure class="member">
-            <img src="images/atif.jpeg" alt="Photo of Member 4">
+            <img src="uploads/members/atif.jpeg" alt="Photo of Member 4">
             <figcaption>
                 <table>
                     <tr><th>Name:</th><td>Wan Muhammad Atif bin Taram Satiraksa</td></tr>
