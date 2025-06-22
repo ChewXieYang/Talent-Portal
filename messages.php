@@ -493,9 +493,9 @@ Subject: <?= htmlspecialchars($reply_message['subject']) ?>
 <?= htmlspecialchars($reply_message['content']) ?><?php endif; ?></textarea>
                             </div>
                             
-                            <div style="display: flex; gap: 10px;">
+                            <div class="form-actions">
                                 <button type="submit" class="btn">Send Message</button>
-                                <a href="messages.php" class="btn" style="background: #6c757d;">Cancel</a>
+                                <a href="messages.php" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>
