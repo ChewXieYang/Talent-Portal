@@ -21,6 +21,7 @@
             <a href="cart.php" class="cart-icon">
                 Shopping Cart<span class="cart-count" id="headerCartCount">0</span>
             </a>
+            <a href="documentation/group.php"> Group Members</a> |
             
             <?php if (isset($_SESSION['user_id'])): ?>
                 <?php if ($_SESSION['user_type'] === 'admin'): ?>
@@ -31,7 +32,7 @@
                     <a href="upload.php">⬆ Upload</a>
                     <a href="talents.php"> Talents</a>
                     <a href="my_services.php"> My Services</a>
-                    <a href="my_orders.php"> My Orders</a>
+                    <a href="my_orders.php"> My Orders</a> 
                 <?php endif; ?>
             <?php else: ?>
                 <a href="register.php"> Register</a>
