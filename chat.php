@@ -8,7 +8,6 @@ if (!isset($_SESSION['user_id']) || !isset($_GET['to'])) {
 $my_id = $_SESSION['user_id'];
 $other_id = intval($_GET['to']);
 
-// Send message via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     $message = trim($_POST['message']);
     if ($message !== '') {
@@ -20,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message'])) {
     exit;
 }
 
-// Fetch messages (AJAX)
 if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
     $stmt = $conn->prepare("
         SELECT sender_id, message, sent_at 
@@ -41,7 +39,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
     exit;
 }
 
-// Get receiver's name
 $stmt = $conn->prepare("SELECT full_name FROM users WHERE id = ?");
 $stmt->bind_param("i", $other_id);
 $stmt->execute();
@@ -73,7 +70,6 @@ const chatBox = document.getElementById('chat-box');
 const form = document.getElementById('chat-form');
 const input = document.getElementById('message');
 
-// Fetch and display messages
 function fetchMessages() {
     fetch('chat.php?action=fetch&to=<?= $other_id ?>')
         .then(response => response.json())
@@ -90,7 +86,6 @@ function fetchMessages() {
         });
 }
 
-// Submit message
 form.addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(form);
@@ -103,7 +98,6 @@ form.addEventListener('submit', function(e) {
     });
 });
 
-// Real-time polling
 setInterval(fetchMessages, 1000);
 fetchMessages();
 </script>
