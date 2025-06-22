@@ -36,74 +36,9 @@ $result = $conn->query($sql);
     <title>Admin Dashboard</title>
     <link rel="stylesheet" type="text/css" href="css/dashboard.css">
     <link rel="stylesheet" type="text/css" href="css/sidebar.css">
+    <link rel="stylesheet" type="text/css" href="css/student_dashboard.css">
     <meta charset="UTF-8">
-    <title>Talent Uploads - Reddit Style</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #dae0e6;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 640px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            overflow: hidden;
-            padding: 15px;
-        }
-
-        .card img {
-            max-width: 100%;
-            border-radius: 4px;
-        }
-
-        .card h2 {
-            margin: 10px 0 5px;
-            font-size: 20px;
-            color: #333;
-        }
-
-        .card p {
-            margin: 0;
-            color: #666;
-        }
-
-        .card .meta {
-            font-size: 12px;
-            color: #999;
-            margin-top: 8px;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .upload-btn {
-            padding: 8px 12px;
-            background: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 10px;
-            margin-left: 8px;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        .upload-btn:hover {
-            background: #218838;
-        }
-        .card {
-            cursor: pointer;
-        }
-    </style>
+    <title>Upload Post</title>
 </head>
 <body>
 
