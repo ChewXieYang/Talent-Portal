@@ -1,7 +1,6 @@
 <?php
 include 'includes/db.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
@@ -11,7 +10,6 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $messageType = '';
 
-// Get cart items
 $stmt = $conn->prepare("
     SELECT sc.*, s.service_title, s.service_description, s.delivery_time, s.service_type, s.user_id as seller_id,
            u.full_name as seller_name, u.username as seller_username, u.contact_email as seller_email
@@ -30,7 +28,6 @@ if ($cart_items->num_rows === 0) {
     exit;
 }
 
-// Calculate totals
 $total_amount = 0;
 $service_fee = 0;
 $cart_data = [];
@@ -44,7 +41,6 @@ while ($item = $cart_items->fetch_assoc()) {
 $service_fee = $total_amount * 0.05;
 $final_total = $total_amount + $service_fee;
 
-// Handle order submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $payment_method = $_POST['payment_method'];
     $billing_name = trim($_POST['billing_name']);
@@ -53,16 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $billing_address = trim($_POST['billing_address']);
     $special_instructions = trim($_POST['special_instructions']);
     
-    // Validation
     if (empty($billing_name) || empty($billing_email) || empty($payment_method)) {
         $message = 'Please fill in all required fields.';
         $messageType = 'error';
     } else {
-        // Start transaction
         $conn->begin_transaction();
         
         try {
-            // Group items by seller to create separate orders
             $orders_by_seller = [];
             foreach ($cart_data as $item) {
                 $seller_id = $item['seller_id'];
@@ -74,14 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             
             $created_orders = [];
             
-            // Create orders for each seller
             foreach ($orders_by_seller as $seller_id => $items) {
                 $order_total = 0;
                 foreach ($items as $item) {
                     $order_total += $item['price'] * $item['quantity'];
                 }
                 
-                // Create order
                 $stmt = $conn->prepare("
                     INSERT INTO orders (buyer_id, seller_id, total_amount, status, payment_status) 
                     VALUES (?, ?, ?, 'pending', 'pending')
@@ -90,8 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 $stmt->execute();
                 $order_id = $conn->insert_id;
                 $created_orders[] = $order_id;
-                
-                // Add order items
+
                 foreach ($items as $item) {
                     $stmt = $conn->prepare("
                         INSERT INTO order_items (order_id, service_id, quantity, unit_price, custom_requirements) 
@@ -102,12 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 }
             }
             
-            // Clear cart
             $stmt = $conn->prepare("DELETE FROM shopping_cart WHERE user_id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
             
-            // Log activity
             $stmt = $conn->prepare("INSERT INTO activity_log (user_id, action_type, action_description) VALUES (?, ?, ?)");
             $action_type = 'order_placed';
             $action_desc = 'Placed order with total: RM ' . number_format($final_total, 2);
@@ -116,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             
             $conn->commit();
             
-            // Redirect to success page
             header('Location: order_success.php?orders=' . implode(',', $created_orders));
             exit;
             
@@ -128,7 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     }
 }
 
-// Get user details for pre-filling form
 $user_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
@@ -380,7 +366,7 @@ $user = $user_stmt->get_result()->fetch_assoc();
                         <div class="payment-option" onclick="selectPayment('bank_transfer')">
                             <input type="radio" name="payment_method" value="bank_transfer" id="bank_transfer" required>
                             <label for="bank_transfer">
-                                <strong>🏦 Bank Transfer</strong><br>
+                                <strong>Bank Transfer</strong><br>
                                 <small>Transfer payment directly to seller's account</small>
                             </label>
                         </div>
@@ -388,7 +374,7 @@ $user = $user_stmt->get_result()->fetch_assoc();
                         <div class="payment-option" onclick="selectPayment('meet_pay')">
                             <input type="radio" name="payment_method" value="meet_pay" id="meet_pay" required>
                             <label for="meet_pay">
-                                <strong>🤝 Meet & Pay</strong><br>
+                                <strong>Meet & Pay</strong><br>
                                 <small>Pay in person when meeting the seller</small>
                             </label>
                         </div>
@@ -396,7 +382,7 @@ $user = $user_stmt->get_result()->fetch_assoc();
                         <div class="payment-option" onclick="selectPayment('escrow')">
                             <input type="radio" name="payment_method" value="escrow" id="escrow" required>
                             <label for="escrow">
-                                <strong>🔒 Escrow Service</strong><br>
+                                <strong>Escrow Service</strong><br>
                                 <small>Secure payment held until work completion</small>
                             </label>
                         </div>
@@ -466,15 +452,12 @@ $user = $user_stmt->get_result()->fetch_assoc();
     
     <script>
         function selectPayment(method) {
-            // Remove selected class from all options
             document.querySelectorAll('.payment-option').forEach(option => {
                 option.classList.remove('selected');
             });
             
-            // Add selected class to clicked option
             event.currentTarget.classList.add('selected');
             
-            // Select the radio button
             document.getElementById(method).checked = true;
         }
     </script>
