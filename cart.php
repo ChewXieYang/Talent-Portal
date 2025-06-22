@@ -1,7 +1,6 @@
 <?php
 include 'includes/db.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
@@ -9,7 +8,6 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Get cart items
 $stmt = $conn->prepare("
     SELECT sc.*, s.service_title, s.service_description, s.delivery_time, s.service_type,
            u.full_name as seller_name, u.username as seller_username, u.profile_picture_url
