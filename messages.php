@@ -11,7 +11,6 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $messageType = '';
 
-// Handle message sending
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     $recipient_id = intval($_POST['recipient_id']);
     $subject = trim($_POST['subject']);
@@ -24,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
         $message = 'You cannot send a message to yourself.';
         $messageType = 'error';
     } else {
-        // Check if recipient exists
         $check_stmt = $conn->prepare("SELECT id FROM users WHERE id = ? AND status = 'active'");
         $check_stmt->bind_param("i", $recipient_id);
         $check_stmt->execute();
@@ -47,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     }
 }
 
-// Handle message actions (mark as read, delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $msg_id = intval($_POST['message_id']);
     $action = $_POST['action'];
@@ -67,12 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Get current view
 $view = isset($_GET['view']) ? $_GET['view'] : 'inbox';
 $compose = isset($_GET['compose']) ? true : false;
 $reply_to = isset($_GET['reply']) ? intval($_GET['reply']) : 0;
 
-// Get messages based on view
 if ($view === 'sent') {
     $messages_stmt = $conn->prepare("
         SELECT pm.*, u.full_name, u.username, u.profile_picture_url
@@ -96,7 +91,6 @@ if ($view === 'sent') {
 $messages_stmt->execute();
 $messages = $messages_stmt->get_result();
 
-// Get reply message details if replying
 $reply_message = null;
 if ($reply_to > 0) {
     $reply_stmt = $conn->prepare("
@@ -110,13 +104,11 @@ if ($reply_to > 0) {
     $reply_message = $reply_stmt->get_result()->fetch_assoc();
 }
 
-// Get unread count
 $unread_stmt = $conn->prepare("SELECT COUNT(*) as count FROM private_messages WHERE recipient_id = ? AND is_read = 0 AND is_deleted_by_recipient = 0");
 $unread_stmt->bind_param("i", $user_id);
 $unread_stmt->execute();
 $unread_count = $unread_stmt->get_result()->fetch_assoc()['count'];
 
-// Get all users for recipient selection
 $users_stmt = $conn->prepare("SELECT id, full_name, username FROM users WHERE id != ? AND status = 'active' ORDER BY full_name");
 $users_stmt->bind_param("i", $user_id);
 $users_stmt->execute();
@@ -128,7 +120,7 @@ $users = $users_stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - MMU Talent Showcase</title>
+    <title>Messages-MMU Talent Showcase</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -419,7 +411,7 @@ $users = $users_stmt->get_result();
                 <ul class="sidebar-menu">
                     <li>
                         <a href="messages.php?view=inbox" class="<?= $view === 'inbox' ? 'active' : '' ?>">
-                            📥 Inbox
+                            Inbox
                             <?php if ($unread_count > 0): ?>
                                 <span class="unread-badge"><?= $unread_count ?></span>
                             <?php endif; ?>
@@ -427,12 +419,12 @@ $users = $users_stmt->get_result();
                     </li>
                     <li>
                         <a href="messages.php?view=sent" class="<?= $view === 'sent' ? 'active' : '' ?>">
-                            📤 Sent
+                            Sent
                         </a>
                     </li>
                     <li>
                         <a href="messages.php?compose=1">
-                            ✏️ Compose
+                            Compose
                         </a>
                     </li>
                 </ul>
@@ -608,15 +600,12 @@ Subject: <?= htmlspecialchars($reply_message['subject']) ?>
             const detail = document.getElementById('detail-' + messageId);
             const isVisible = detail.style.display !== 'none';
             
-            // Hide all other details
             document.querySelectorAll('[id^="detail-"]').forEach(el => {
                 el.style.display = 'none';
             });
             
-            // Toggle current detail
             detail.style.display = isVisible ? 'none' : 'block';
             
-            // Mark as read if it's an unread inbox message
             const messageItem = detail.previousElementSibling;
             if (messageItem.classList.contains('unread') && !isVisible) {
                 // Auto-mark as read when opened
