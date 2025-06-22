@@ -3,7 +3,6 @@ include 'includes/db.php';
 
 $searchQuery = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-// Check user type
 $user_type = '';
 if (isset($_SESSION['user_id'])) {
     $stmt = $conn->prepare("SELECT user_type FROM users WHERE id = ? LIMIT 1");
@@ -16,7 +15,6 @@ if (isset($_SESSION['user_id'])) {
     $stmt->close();
 }
 
-// SQL query to fetch recent image posts (with optional search by title or description)
 $sql = "SELECT p.*, u.full_name FROM talent_uploads p 
         JOIN users u ON p.user_id = u.id 
         WHERE p.file_type = 'image'";
@@ -56,10 +54,7 @@ $result = $conn->query($sql);
             <a href="upload_talent.php" class="upload-btn">Upload Post</a>
         </div>
     </form>
-
-
     <hr>
-
     <div class="container">
     <h1>Latest Talent Uploads</h1>
 
