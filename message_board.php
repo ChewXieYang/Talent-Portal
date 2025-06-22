@@ -1,7 +1,6 @@
 <?php
 include 'includes/db.php';
 
-// Handle post creation
 $message = '';
 $messageType = '';
 
@@ -34,11 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     }
 }
 
-// Get filter parameters
 $filter_type = isset($_GET['type']) ? $_GET['type'] : '';
 $search_query = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-// Build query for posts
 $sql = "SELECT mbp.*, u.full_name, u.username, u.profile_picture_url,
                (SELECT COUNT(*) FROM message_board_comments WHERE post_id = mbp.id) as comment_count
         FROM message_board_posts mbp
