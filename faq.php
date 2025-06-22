@@ -20,22 +20,10 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>FAQ - MMU Talent Showcase</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/faq.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <script src="js/main.js"></script>
-
-    <style>
-        .wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            background-color: #f5f5f5;
-        }
-        
-    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -43,6 +31,7 @@ if (isset($_SESSION['user_id'])) {
 
         <div class="main-content">
             <?php include 'includes/header.php'; ?>
+            
             <?php if (isset($_GET['success'])): ?>
                 <div class="success-message">Your question has been submitted successfully!</div>
             <?php elseif (isset($_GET['error'])): ?>
@@ -74,81 +63,79 @@ if (isset($_SESSION['user_id'])) {
                             <td class="faq-answer">Yes, go to your dashboard and select 'Edit' next to your talent submission.</td>
                         </tr>
                         <tr class="faq-item">
-                            <td class="faq-question">Who can view my submission?</td>
+                            <td class="faq-question">How long does it take for my submission to be reviewed?</td>
                         </tr>
                         <tr class="faq-answer-row">
-                            <td class="faq-answer">All registered users and admins can view published submissions on the platform.</td>
+                            <td class="faq-answer">Submissions are typically reviewed within 3-5 business days.</td>
                         </tr>
                         <tr class="faq-item">
-                            <td class="faq-question">What file formats are supported?</td>
+                            <td class="faq-question">Can I submit multiple talents?</td>
                         </tr>
                         <tr class="faq-answer-row">
-                            <td class="faq-answer">We support common formats like JPG, PNG, MP4, PDF, and DOCX.</td>
+                            <td class="faq-answer">Yes, you can submit multiple talents by creating separate submissions for each.</td>
+                        </tr>
+                        <tr class="faq-item">
+                            <td class="faq-question">What file formats are supported for uploads?</td>
+                        </tr>
+                        <tr class="faq-answer-row">
+                            <td class="faq-answer">We support JPG, PNG, PDF, MP4, and MP3 files up to 50MB each.</td>
+                        </tr>
+                        <tr class="faq-item">
+                            <td class="faq-question">How do I contact support?</td>
+                        </tr>
+                        <tr class="faq-answer-row">
+                            <td class="faq-answer">You can contact our support team through the contact form below or email us at support@mmutalent.com</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
+            <!-- Question submission form -->
             <section class="question-form-section">
-                <h2>Have More Questions?</h2>
-                <p>Send us your inquiry below and we'll get back to you as soon as possible.</p>
-                <form action="submit_question.php" method="post">
-                    <label for="email">Your Email:</label>
-                    <input type="email" name="email" id="email" required>
-
-                    <label for="subject">Your Question:</label>
-                    <input type="text" name="subject" id="subject" required>
-
-                    <label for="message">Additional Message:</label>
-                    <textarea name="body" id="message" rows="5" required></textarea>
-
-                    <button type="submit">Send Question</button>
+                <h2>Have a question that's not answered above?</h2>
+                <p>Submit your question and we'll get back to you as soon as possible.</p>
+                
+                <form method="POST" action="submit_question.php">
+                    <label for="user_name">Your Name:</label>
+                    <input type="text" id="user_name" name="user_name" required>
+                    
+                    <label for="user_email">Your Email:</label>
+                    <input type="email" id="user_email" name="user_email" required>
+                    
+                    <label for="question_subject">Subject:</label>
+                    <input type="text" id="question_subject" name="question_subject" required>
+                    
+                    <label for="question_text">Your Question:</label>
+                    <textarea id="question_text" name="question_text" rows="5" required placeholder="Please describe your question in detail..."></textarea>
+                    
+                    <button type="submit">Submit Question</button>
                 </form>
             </section>
-
-            <?php include 'includes/footer.php'; ?>
         </div>
     </div>
 
     <script>
-        const questions = document.querySelectorAll('.faq-question');
-        questions.forEach((question) => {
-            question.addEventListener('click', () => {
-                const answerRow = question.parentElement.nextElementSibling;
-                answerRow.classList.toggle('open');
+        // FAQ accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const answerRow = this.parentNode.nextElementSibling;
+                    const isOpen = answerRow.classList.contains('open');
+                    
+                    // Close all other answers
+                    document.querySelectorAll('.faq-answer-row').forEach(row => {
+                        row.classList.remove('open');
+                    });
+                    
+                    // Toggle current answer
+                    if (!isOpen) {
+                        answerRow.classList.add('open');
+                    }
+                });
             });
         });
-
-        const form = document.querySelector("form");
-        form.addEventListener("submit", function (e) {
-            const email = document.getElementById("email").value.trim();
-            const subject = document.getElementById("subject").value.trim();
-            const message = document.getElementById("message").value.trim();
-
-            let errors = [];
-
-            if (!isValidEmail(email)) {
-                errors.push("Please enter a valid email address.");
-            }
-
-            if (subject.length < 5) {
-                errors.push("Your question must be at least 5 characters long.");
-            }
-
-            if (message.length < 10) {
-                errors.push("Your additional message must be at least 10 characters long.");
-            }
-
-            if (errors.length > 0) {
-                e.preventDefault();
-                alert(errors.join("\\n"));
-            }
-        });
-
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
     </script>
 </body>
 </html>
